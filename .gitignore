@@ -1,0 +1,17 @@
+.DS_Store
+.build/
+Build/
+Dist/
+Artifacts/
+Reference/
+Tools/
+*.app/
+*.dmg
+*.dSYM/
+*.md
+*.sh
+INSTALL*.txt
+*.xcuserstate
+xcuserdata/
+__pycache__/
+/MacPaint 1.3 Source/

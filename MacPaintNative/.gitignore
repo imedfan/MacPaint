@@ -1,0 +1,7 @@
+.build/
+Build/
+Dist/
+Artifacts/Verification/
+*.xcuserstate
+xcuserdata/
+Tools/__pycache__/

@@ -1,0 +1,519 @@
+{
+  "source": "https://github.com/autc04/executor/blob/master/res/System.ad",
+  "archiveSHA256": "b47c262017f4b24492e88e331124a7df3d79029fc910307b11a683200513c259",
+  "license": "Executor-COPYING.txt",
+  "resources": [
+    {
+      "type": "PAT#",
+      "id": 0,
+      "file": "System-PAT_-0.bin",
+      "bytes": 306,
+      "sha256": "9b1e536efa830c92600d11e1c29ab2db5a533f44783bfd8705bee0e9f183b315"
+    },
+    {
+      "type": "FONT",
+      "id": 2825,
+      "file": "System-FONT-2825.bin",
+      "bytes": 2654,
+      "sha256": "a98072f405f566ae8bedc13e1095a52255fd65c48c22b2df3b3a3a9b9523737b"
+    },
+    {
+      "type": "FONT",
+      "id": 2826,
+      "file": "System-FONT-2826.bin",
+      "bytes": 3026,
+      "sha256": "a493b561ef583849e81fdb24c7983c249f3f73807cc28d8b1e6d388230a9483a"
+    },
+    {
+      "type": "FONT",
+      "id": 2828,
+      "file": "System-FONT-2828.bin",
+      "bytes": 2858,
+      "sha256": "a4b921f39f9917b7227c249dd5e853329b5d87460d9400a0d2e3966b0dc49928"
+    },
+    {
+      "type": "FONT",
+      "id": 2830,
+      "file": "System-FONT-2830.bin",
+      "bytes": 3438,
+      "sha256": "d2905c3ea96a25c317b7226e7efeb06f459f17d3c0d4bb93cf79d389e9cc0457"
+    },
+    {
+      "type": "FONT",
+      "id": 2834,
+      "file": "System-FONT-2834.bin",
+      "bytes": 4730,
+      "sha256": "d182639db2f03ff9115dafef5795c51326dd723ee9d8b7cc4749ee88e311956d"
+    },
+    {
+      "type": "FONT",
+      "id": 2840,
+      "file": "System-FONT-2840.bin",
+      "bytes": 7174,
+      "sha256": "339b3f65fe4d93a1e3c4474c93293421907e3954cf537d6db65fade6a7cd51a2"
+    },
+    {
+      "type": "FONT",
+      "id": 2697,
+      "file": "System-FONT-2697.bin",
+      "bytes": 2694,
+      "sha256": "325c838c810a2045525eaa7eb20cf4b5c676311c8a421c94eb41e56ec77be2ba"
+    },
+    {
+      "type": "FONT",
+      "id": 2698,
+      "file": "System-FONT-2698.bin",
+      "bytes": 2422,
+      "sha256": "43597dfa79101d2f1f0c6a1f67679dbe9c9210dc9188da40e0819cb760bba247"
+    },
+    {
+      "type": "FONT",
+      "id": 2700,
+      "file": "System-FONT-2700.bin",
+      "bytes": 2982,
+      "sha256": "304e64e68b41e0aecb07173665b613867f8ecf6f9ef1609b329881aa84ec565e"
+    },
+    {
+      "type": "FONT",
+      "id": 2702,
+      "file": "System-FONT-2702.bin",
+      "bytes": 3382,
+      "sha256": "5865b42fca3d40d5e6cdcecf74ebc60bbad007383a07e28f542ac544ea448f15"
+    },
+    {
+      "type": "FONT",
+      "id": 2706,
+      "file": "System-FONT-2706.bin",
+      "bytes": 5090,
+      "sha256": "fa3af20bd8a36d4a430915e8edad311a4cbb07a649c9d2937e27d6cba5452edb"
+    },
+    {
+      "type": "FONT",
+      "id": 2712,
+      "file": "System-FONT-2712.bin",
+      "bytes": 8158,
+      "sha256": "680971f884f29d3120b77d177cd7e75324e61243cfbae7cea64f639463971784"
+    },
+    {
+      "type": "FONT",
+      "id": 2953,
+      "file": "System-FONT-2953.bin",
+      "bytes": 2900,
+      "sha256": "e502b1be7e99aba9e12210b9c10925640a466a7d9030ac6d978d0274fa393317"
+    },
+    {
+      "type": "FONT",
+      "id": 2954,
+      "file": "System-FONT-2954.bin",
+      "bytes": 2378,
+      "sha256": "a17d94bb686abf183ddcca4a8e560bfcbbcf519efa52a8eb0f61190043ca6a44"
+    },
+    {
+      "type": "FONT",
+      "id": 2956,
+      "file": "System-FONT-2956.bin",
+      "bytes": 3404,
+      "sha256": "777164f55e5fcec410ac2a4b0bd71efc115db10484bba6937472cdd95a3e8a54"
+    },
+    {
+      "type": "FONT",
+      "id": 2958,
+      "file": "System-FONT-2958.bin",
+      "bytes": 3488,
+      "sha256": "1c2e7c002d1118b4148268d1b0e593e6d82e046b62783071edb87478b0e951f5"
+    },
+    {
+      "type": "FONT",
+      "id": 2962,
+      "file": "System-FONT-2962.bin",
+      "bytes": 5906,
+      "sha256": "a493e6198e8dbfbf3faa1387237da8d7550b743c35182598d865ec581aa4a427"
+    },
+    {
+      "type": "FONT",
+      "id": 2968,
+      "file": "System-FONT-2968.bin",
+      "bytes": 9304,
+      "sha256": "4086e5c48b902fe8b9b3e304bf02f189a7ce21fab3048645efe0d2f0e47b576e"
+    },
+    {
+      "type": "FONT",
+      "id": 2569,
+      "file": "System-FONT-2569.bin",
+      "bytes": 2674,
+      "sha256": "8ed5f5fd23ee8a6d73b2c5e9ecf1f776646a7afb87f6efe824e38531738e9f85"
+    },
+    {
+      "type": "FONT",
+      "id": 2570,
+      "file": "System-FONT-2570.bin",
+      "bytes": 2916,
+      "sha256": "fd2dd3e7b73cf5d7613e28e1966447a13c75235ae77cddab3bff5b8ab4adc29c"
+    },
+    {
+      "type": "FONT",
+      "id": 2572,
+      "file": "System-FONT-2572.bin",
+      "bytes": 2810,
+      "sha256": "c33602b38b9c41368292d691cb5f505c699a23c8c16d355e6b646ccecb21ad5a"
+    },
+    {
+      "type": "FONT",
+      "id": 2574,
+      "file": "System-FONT-2574.bin",
+      "bytes": 3608,
+      "sha256": "f23b08c98bef4f4e916a4cfe2746e1d44c5b3219fec089dfbe204e5537cadafb"
+    },
+    {
+      "type": "FONT",
+      "id": 2578,
+      "file": "System-FONT-2578.bin",
+      "bytes": 5018,
+      "sha256": "cef2437a1dbc61de8f8c998bc2a3b79abdf9777b81762aff874ff50ea6c6b056"
+    },
+    {
+      "type": "FONT",
+      "id": 2584,
+      "file": "System-FONT-2584.bin",
+      "bytes": 7970,
+      "sha256": "0f131d1063c60295a2342c1cd6b436a46819ca48dbabb5f25290a08892b113f4"
+    },
+    {
+      "type": "FONT",
+      "id": 12,
+      "file": "System-FONT-12.bin",
+      "bytes": 3380,
+      "sha256": "5c8d37e7044e2fa2bb6456299dfd423f91bd795aa6bb68bb093e06771e8d7ef3"
+    },
+    {
+      "type": "FONT",
+      "id": 393,
+      "file": "System-FONT-393.bin",
+      "bytes": 2594,
+      "sha256": "b8e42248fc044caea424d7a2433f44e9861903f9daec16481ce41c302b1c52f4"
+    },
+    {
+      "type": "FONT",
+      "id": 394,
+      "file": "System-FONT-394.bin",
+      "bytes": 2642,
+      "sha256": "29f926a4d09512aa2062a1873d34f4ba224591cedf3ead1b53b61762b33df45b"
+    },
+    {
+      "type": "FONT",
+      "id": 396,
+      "file": "System-FONT-396.bin",
+      "bytes": 2734,
+      "sha256": "1ae070fb30e3f9912eec605f023db2ca5919624ad898570d8aa12b3e65fec916"
+    },
+    {
+      "type": "FONT",
+      "id": 398,
+      "file": "System-FONT-398.bin",
+      "bytes": 3568,
+      "sha256": "48b08ab918eb49bbe1796f0a43a8b39323e92bf3e6e8aa666b6e61d0cb921dc2"
+    },
+    {
+      "type": "FONT",
+      "id": 402,
+      "file": "System-FONT-402.bin",
+      "bytes": 4864,
+      "sha256": "ebc5ae01d0bf7ce62107513f748780a3fcf55c2b4291fa64f57b1bed485be434"
+    },
+    {
+      "type": "FONT",
+      "id": 404,
+      "file": "System-FONT-404.bin",
+      "bytes": 5848,
+      "sha256": "6c23f257267f93d590dcaebf4c7c405455e09ab653c32dbb4be53ab911d55df5"
+    },
+    {
+      "type": "FONT",
+      "id": 408,
+      "file": "System-FONT-408.bin",
+      "bytes": 7568,
+      "sha256": "f539b60627d1bc8ab8008946c632f752729d39e51511fedac451e61494bced21"
+    },
+    {
+      "type": "FONT",
+      "id": 521,
+      "file": "System-FONT-521.bin",
+      "bytes": 2468,
+      "sha256": "e5ce438a271646ddffb162b47519775153bcde385ecc0af9d9a56fd52356f1d2"
+    },
+    {
+      "type": "FONT",
+      "id": 524,
+      "file": "System-FONT-524.bin",
+      "bytes": 2464,
+      "sha256": "4593cb0d3cc92a5c8acb8a0c2c9d7ba5b59731a12387944795ca00ad1801b9dd"
+    },
+    {
+      "type": "FONT",
+      "id": 265,
+      "file": "System-FONT-265.bin",
+      "bytes": 2474,
+      "sha256": "1893bc686326a92178d3da69b7fe98b71e39aea9ac93617ae2b74b6c6b4aaa5b"
+    },
+    {
+      "type": "FONT",
+      "id": 266,
+      "file": "System-FONT-266.bin",
+      "bytes": 2200,
+      "sha256": "deba189133593aec195d9dfe31e6640e6c969e85a28ac1e824d895ed871167c5"
+    },
+    {
+      "type": "FONT",
+      "id": 268,
+      "file": "System-FONT-268.bin",
+      "bytes": 2734,
+      "sha256": "793d19767f539d4785970f58e89e9637d30433e6458cdf0724299303f48e39a4"
+    },
+    {
+      "type": "FONT",
+      "id": 270,
+      "file": "System-FONT-270.bin",
+      "bytes": 3352,
+      "sha256": "01db5148e1baf47d530af0d9ad71161c5da0967fb324136875529f1e6ef7e677"
+    },
+    {
+      "type": "FONT",
+      "id": 274,
+      "file": "System-FONT-274.bin",
+      "bytes": 4516,
+      "sha256": "93661ab80e26429a7e39c3ad7d23b77601f29991489565f493d67697f30de7fa"
+    },
+    {
+      "type": "FONT",
+      "id": 276,
+      "file": "System-FONT-276.bin",
+      "bytes": 5260,
+      "sha256": "575e0c469ef9f3ee5c9effcbf588fa53bcded8d83729a8398b8a7f2776fd82b3"
+    },
+    {
+      "type": "FONT",
+      "id": 280,
+      "file": "System-FONT-280.bin",
+      "bytes": 6832,
+      "sha256": "f30d7252b65e5a42b5dcbfa65b9f122fd46ad7d6d6facdb88ba0125b65b37024"
+    },
+    {
+      "type": "FONT",
+      "id": 389,
+      "file": "System-FONT-389.bin",
+      "bytes": 1550,
+      "sha256": "835d62acca329dba186e665482a99abafde4f19720154804f04de564b1d2c663"
+    },
+    {
+      "type": "FONT",
+      "id": 390,
+      "file": "System-FONT-390.bin",
+      "bytes": 1158,
+      "sha256": "ec44b1c26686a1382acb194c81543c2a95e6878de0c4c33a4807c5eb03574a6e"
+    },
+    {
+      "type": "FONT",
+      "id": 391,
+      "file": "System-FONT-391.bin",
+      "bytes": 1194,
+      "sha256": "36e18d225de2fb141a42f158955d69cd82f2ce1533ba37de510edcc05987eb0c"
+    },
+    {
+      "type": "FONT",
+      "id": 392,
+      "file": "System-FONT-392.bin",
+      "bytes": 1338,
+      "sha256": "3b9ea00a75166208791200ebde48bec8c98c486a71d7dd6d1dd8e333d98e014f"
+    },
+    {
+      "type": "FONT",
+      "id": 400,
+      "file": "System-FONT-400.bin",
+      "bytes": 3106,
+      "sha256": "9f6285f61139850304a8df79a5243a48246490230cc75784eb3e1a75d3af3eb9"
+    },
+    {
+      "type": "FONT",
+      "id": 2058,
+      "file": "System-FONT-2058.bin",
+      "bytes": 3254,
+      "sha256": "e54ab66fb23030d52b9899c9ae96c5b8193ab88295b4c9dcef43f1988cdd3465"
+    },
+    {
+      "type": "FONT",
+      "id": 2060,
+      "file": "System-FONT-2060.bin",
+      "bytes": 3358,
+      "sha256": "6a61dc22cf7bd0516d8202560931f5d3ed7a2be4a0dfc8ad58f72b06de908fca"
+    },
+    {
+      "type": "FONT",
+      "id": 2062,
+      "file": "System-FONT-2062.bin",
+      "bytes": 4038,
+      "sha256": "49f506ac28050b6fec1ee1d417bc7e61f8a65cf9b3899a35e5ae23abde80e876"
+    },
+    {
+      "type": "FONT",
+      "id": 2066,
+      "file": "System-FONT-2066.bin",
+      "bytes": 6102,
+      "sha256": "5569abbbe37c9ddfb178e062cde6f0317c5e8e83bafc7ee39c42fd8b251fec69"
+    },
+    {
+      "type": "FONT",
+      "id": 2072,
+      "file": "System-FONT-2072.bin",
+      "bytes": 9062,
+      "sha256": "4969bd4206c1fb45b5241fb840ff5524173e1ac2246282c57f9cd1bf78ae82c0"
+    },
+    {
+      "type": "FOND",
+      "id": 21,
+      "file": "System-FOND-21.bin",
+      "bytes": 7704,
+      "sha256": "8de76fb48ca5ffb23577b47cb1a16e818c3e64fb0c9309134c7999fdc2c11a5a"
+    },
+    {
+      "type": "FOND",
+      "id": 20,
+      "file": "System-FOND-20.bin",
+      "bytes": 4190,
+      "sha256": "d53ed5f69af414a7cfb77d2ca20a55b555eacad24d9aa64f7b66af7c1c53e64c"
+    },
+    {
+      "type": "FOND",
+      "id": 0,
+      "file": "System-FOND-0.bin",
+      "bytes": 60,
+      "sha256": "ff8d08d595f7db3f99808a92a9d680915d26cf7b817e6fe3ec8d9fde28b171ef"
+    },
+    {
+      "type": "FOND",
+      "id": 4,
+      "file": "System-FOND-4.bin",
+      "bytes": 66,
+      "sha256": "adc5c28ae59ca9ec0a9a567693b69e394c857b4b784ce5a0ad37f443d6bf3a23"
+    },
+    {
+      "type": "FOND",
+      "id": 2,
+      "file": "System-FOND-2.bin",
+      "bytes": 96,
+      "sha256": "0385f6f110675ca53ccb1650d90563558a5d833160c3e69df7578da631d950c9"
+    },
+    {
+      "type": "FOND",
+      "id": 22,
+      "file": "System-FOND-22.bin",
+      "bytes": 2324,
+      "sha256": "b03b3f791d369bc3827541808f6e91f6c752fc47aa1126e6d766a8e8d37b5771"
+    },
+    {
+      "type": "FOND",
+      "id": 3,
+      "file": "System-FOND-3.bin",
+      "bytes": 780,
+      "sha256": "6490754926c374b4c42657ada908e93b1eab864e2bcd97eb6613ce8885eeab65"
+    },
+    {
+      "type": "FOND",
+      "id": 16,
+      "file": "System-FOND-16.bin",
+      "bytes": 3982,
+      "sha256": "ce8a4db2d5b8cf7f54e9eea1d71cd07fd18ecf438ebbee5766425483d3f8a6c3"
+    },
+    {
+      "type": "FOND",
+      "id": 23,
+      "file": "System-FOND-23.bin",
+      "bytes": 702,
+      "sha256": "1a393a44f92a59fc073a79e5382b6bb2d6641805278ace13a028b1c7b9f8a5ff"
+    },
+    {
+      "type": "NFNT",
+      "id": 26879,
+      "file": "System-NFNT-26879.bin",
+      "bytes": 5750,
+      "sha256": "c6a1a4b05197698dab816f86a393ad413d7fe8a213fb40f0f41232aae53ecf74"
+    },
+    {
+      "type": "NFNT",
+      "id": 25164,
+      "file": "System-NFNT-25164.bin",
+      "bytes": 12032,
+      "sha256": "19a60826cf35b0123985736176c019fc5aa67548e02c7fa533245aa22162ea95"
+    },
+    {
+      "type": "NFNT",
+      "id": 21564,
+      "file": "System-NFNT-21564.bin",
+      "bytes": 22042,
+      "sha256": "a2bfc63a182d16b4403b75ed828a8486522689456ff1ad42c0b07a6231845e8d"
+    },
+    {
+      "type": "NFNT",
+      "id": 13232,
+      "file": "System-NFNT-13232.bin",
+      "bytes": 6142,
+      "sha256": "54553cb46b931ffa91b7fca39c7bf4b6cef5c5a584e062ede658b53491896cf3"
+    },
+    {
+      "type": "NFNT",
+      "id": 24334,
+      "file": "System-NFNT-24334.bin",
+      "bytes": 10214,
+      "sha256": "0321b0d196c07035d502106c548664cd98ce7571f8aa48bca26ad569d950e287"
+    },
+    {
+      "type": "NFNT",
+      "id": 13934,
+      "file": "System-NFNT-13934.bin",
+      "bytes": 10814,
+      "sha256": "07c6a4b9bafa11db44a8d505f4195121b13dd1697b01cdd23fa5301a62b7c693"
+    },
+    {
+      "type": "NFNT",
+      "id": 12701,
+      "file": "System-NFNT-12701.bin",
+      "bytes": 12374,
+      "sha256": "ab34822fba10658d11e8fa79ad773265e9e3dc887b68c76cf74cac47fec04bbe"
+    },
+    {
+      "type": "NFNT",
+      "id": 22252,
+      "file": "System-NFNT-22252.bin",
+      "bytes": 13820,
+      "sha256": "909698ac9f0849c912a200c520204be257ec95d41e83c4720a16ef5146f1f790"
+    },
+    {
+      "type": "NFNT",
+      "id": 11264,
+      "file": "System-NFNT-11264.bin",
+      "bytes": 17150,
+      "sha256": "f2d7328c9ba5f07d6d44afe18d6753b05347f04443122eb63ebe6b04c67416e1"
+    },
+    {
+      "type": "NFNT",
+      "id": 16470,
+      "file": "System-NFNT-16470.bin",
+      "bytes": 22350,
+      "sha256": "385a6f063542b92a202cf2eb37ac57c460cf07c223303911d0fd9ffc79e6de62"
+    },
+    {
+      "type": "NFNT",
+      "id": 25634,
+      "file": "System-NFNT-25634.bin",
+      "bytes": 33600,
+      "sha256": "92edd8e373354df28ab6b5e6414f6330bb3ab83911b4e28bda8b8341649425f0"
+    },
+    {
+      "type": "NFNT",
+      "id": 22866,
+      "file": "System-NFNT-22866.bin",
+      "bytes": 17552,
+      "sha256": "40a46bfb15b1ca78d460474d14645c55989899fb0491c849aa5b9f6112f1adeb"
+    }
+  ],
+  "note": "Only bitmap font and pattern data is included in the native app. No Executor code is used."
+}

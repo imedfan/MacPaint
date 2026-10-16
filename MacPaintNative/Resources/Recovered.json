@@ -1,0 +1,517 @@
+{
+  "source": "https://www.gryphel.com/c/sw/general/macpaint/",
+  "archiveMD5": "e1d1ffde44cbc14f86d9034429befb55",
+  "catalog": [
+    {
+      "name": "README",
+      "type": "TEXT"
+    },
+    {
+      "name": "MacPaint.p",
+      "type": "TEXT"
+    },
+    {
+      "name": "MacPaint.r",
+      "type": "TEXT"
+    },
+    {
+      "name": "MyHeapAsm.a",
+      "type": "TEXT"
+    },
+    {
+      "name": "MyTools.a",
+      "type": "TEXT"
+    },
+    {
+      "name": "PaintAsm.a",
+      "type": "TEXT"
+    },
+    {
+      "name": "COPYRIGHT.TXT",
+      "type": "TEXT"
+    },
+    {
+      "name": "Desktop",
+      "type": "FNDR"
+    },
+    {
+      "name": "MacPaint",
+      "type": "APPL"
+    },
+    {
+      "name": "Build",
+      "type": "TEXT"
+    }
+  ],
+  "resources": [
+    {
+      "type": "MPNT",
+      "id": 0,
+      "file": "MPNT-0.bin",
+      "bytes": 31,
+      "sha256": "00ca3f034478ddb8cc567899ea50e9036e613e0d0f4987c65c5330309af7eea8"
+    },
+    {
+      "type": "BNDL",
+      "id": 128,
+      "file": "BNDL-128.bin",
+      "bytes": 36,
+      "sha256": "001df3659957706f8e102b967035a5da7a9abe2b931b037767e098187b74f2a5"
+    },
+    {
+      "type": "FREF",
+      "id": 128,
+      "file": "FREF-128.bin",
+      "bytes": 7,
+      "sha256": "6ae70fda6b5f837884e8d6de071429e82370e929a86f133fd3c2b8775a9d594b"
+    },
+    {
+      "type": "FREF",
+      "id": 129,
+      "file": "FREF-129.bin",
+      "bytes": 7,
+      "sha256": "914ee99e7c919fb96226125e88da91534efa4bd0a0e2f53bf54a569635194fab"
+    },
+    {
+      "type": "ICN#",
+      "id": 128,
+      "file": "ICN_-128.bin",
+      "bytes": 256,
+      "sha256": "6cb1b40b9eddcc831ff4de3ba585551f1d5f9718632618dc585c2960f57e2f5b"
+    },
+    {
+      "type": "ICN#",
+      "id": 129,
+      "file": "ICN_-129.bin",
+      "bytes": 256,
+      "sha256": "910d86ea2f838cfd3dcdebeb4fdee5cade90d7d5f8e193a9e8e9a1f1719e0c45"
+    },
+    {
+      "type": "MENU",
+      "id": 1,
+      "file": "MENU-1.bin",
+      "bytes": 45,
+      "sha256": "46b474c9ff373feb8eb8a3b40b4686e14d124633a94eaa6fc2c90c8e0b4ce66e"
+    },
+    {
+      "type": "MENU",
+      "id": 2,
+      "file": "MENU-2.bin",
+      "bytes": 144,
+      "sha256": "d7a5f46e3e39451cea855ac8a5d0db4e2cecd241c5de091fa28990dc254734c2"
+    },
+    {
+      "type": "MENU",
+      "id": 3,
+      "file": "MENU-3.bin",
+      "bytes": 163,
+      "sha256": "386364cf3dfa6cab28ce24c39210ef126405460246958ddff92de3ef4c3247a9"
+    },
+    {
+      "type": "MENU",
+      "id": 4,
+      "file": "MENU-4.bin",
+      "bytes": 141,
+      "sha256": "653690057d5050c72511c9b74bfd75ef2ca90c7eb79975a2a93c8cf179ae16bb"
+    },
+    {
+      "type": "MENU",
+      "id": 5,
+      "file": "MENU-5.bin",
+      "bytes": 20,
+      "sha256": "b5fabe70f9f3375e73287f930ca88c87d5aa545873ea99a3e9969f028635679b"
+    },
+    {
+      "type": "MENU",
+      "id": 6,
+      "file": "MENU-6.bin",
+      "bytes": 92,
+      "sha256": "67252ed60de8be238e22a70054a61b3e7b2b6e465fd925179974a346791cbefb"
+    },
+    {
+      "type": "MENU",
+      "id": 7,
+      "file": "MENU-7.bin",
+      "bytes": 142,
+      "sha256": "17bdf0185452c20a77ace54728957c344f111e85787961a1948e40a4d3a0c974"
+    },
+    {
+      "type": "FONT",
+      "id": 31884,
+      "file": "FONT-31884.bin",
+      "bytes": 1948,
+      "sha256": "c4b3674e878db6a420fa5031e0a778b677b86f60d76daf3727e3c4736caad01d"
+    },
+    {
+      "type": "DLOG",
+      "id": 2001,
+      "file": "DLOG-2001.bin",
+      "bytes": 22,
+      "sha256": "ed1f9a09a2227ea23c546e2e6b3872bda498af83bddbddbb4a461b3896b96a3d"
+    },
+    {
+      "type": "DLOG",
+      "id": 2002,
+      "file": "DLOG-2002.bin",
+      "bytes": 22,
+      "sha256": "90d499b55561b8b7511d3b58d03e02c7db9fb4b8b3f6c0691dd7ef14f4ef5212"
+    },
+    {
+      "type": "DLOG",
+      "id": 2003,
+      "file": "DLOG-2003.bin",
+      "bytes": 22,
+      "sha256": "a59117f0d26fd78ac5c99fbd3e3bb5cc362e8cd8c1e5f4794337de79334bc74d"
+    },
+    {
+      "type": "DLOG",
+      "id": 2004,
+      "file": "DLOG-2004.bin",
+      "bytes": 22,
+      "sha256": "f7468df76e756204050f7fbfc9cccbcc2198555d4ea71bd146b085a3edba420c"
+    },
+    {
+      "type": "DLOG",
+      "id": 2005,
+      "file": "DLOG-2005.bin",
+      "bytes": 22,
+      "sha256": "5e9692064b36dbe222bde98d08d64d92aace781e56341ecabbc317d0def684e2"
+    },
+    {
+      "type": "DLOG",
+      "id": 2006,
+      "file": "DLOG-2006.bin",
+      "bytes": 22,
+      "sha256": "5628349cc957af904efefedca47c0e8f266afe7f48ffb5d8bdc7face11d38bbd"
+    },
+    {
+      "type": "DITL",
+      "id": 2001,
+      "file": "DITL-2001.bin",
+      "bytes": 98,
+      "sha256": "7d37140565dfc32d1de4a77642c7e397e1b318d9185a048232b09e4492943f7b"
+    },
+    {
+      "type": "DITL",
+      "id": 2002,
+      "file": "DITL-2002.bin",
+      "bytes": 100,
+      "sha256": "ceaca824c29948c2c78a59e753801a2acbff521f9295553a59c76eb31ef47ef4"
+    },
+    {
+      "type": "DITL",
+      "id": 2003,
+      "file": "DITL-2003.bin",
+      "bytes": 52,
+      "sha256": "f16eff7402bcb941a025257f1c2f198958e9652fde811fcd319a0568cf41a65d"
+    },
+    {
+      "type": "DITL",
+      "id": 2004,
+      "file": "DITL-2004.bin",
+      "bytes": 16,
+      "sha256": "3351b778cf8bb63eaf01bbc942afa62d27509aea31f624894517919ce91285d7"
+    },
+    {
+      "type": "DITL",
+      "id": 2005,
+      "file": "DITL-2005.bin",
+      "bytes": 50,
+      "sha256": "f12266221c5bd8d8f623bb68a426b83495c11697f8888fdf706ede8143cbbfd1"
+    },
+    {
+      "type": "DITL",
+      "id": 2006,
+      "file": "DITL-2006.bin",
+      "bytes": 254,
+      "sha256": "6cad4bdda685d7cb71b4d673835479b1fe9d35a40564b6fd8c600677477cb7ed"
+    },
+    {
+      "type": "DITL",
+      "id": 2101,
+      "file": "DITL-2101.bin",
+      "bytes": 102,
+      "sha256": "a7b1cab050265283f818ac0c43b8811371c642d52dab1eedd0bf48e223c52c8d"
+    },
+    {
+      "type": "DITL",
+      "id": 2102,
+      "file": "DITL-2102.bin",
+      "bytes": 112,
+      "sha256": "a823c922b153a82816956f6af9aaa0a8469c0ccaae14c2c6be65917c492bd767"
+    },
+    {
+      "type": "DITL",
+      "id": 2103,
+      "file": "DITL-2103.bin",
+      "bytes": 84,
+      "sha256": "d7150e9b084082f3306bde63e02e8360cb8088e9ea07e61e9d9509038c9a2a40"
+    },
+    {
+      "type": "DITL",
+      "id": 2104,
+      "file": "DITL-2104.bin",
+      "bytes": 68,
+      "sha256": "4a70d14082aa6584d2e3d7b454c35159b5effe576643d8e509bc5ff4e352ae6d"
+    },
+    {
+      "type": "DITL",
+      "id": 2105,
+      "file": "DITL-2105.bin",
+      "bytes": 102,
+      "sha256": "74ec3f5b59d0a98f721869ede33548717d9145e95baab544096a89d1f6a3b8ea"
+    },
+    {
+      "type": "DITL",
+      "id": 2106,
+      "file": "DITL-2106.bin",
+      "bytes": 94,
+      "sha256": "542b875ea1e6c64f300bcd4b54c4f77b34a51bcd06d6f5af1eaa55e569e5e0db"
+    },
+    {
+      "type": "DITL",
+      "id": 2107,
+      "file": "DITL-2107.bin",
+      "bytes": 94,
+      "sha256": "684b0de56c95d032fe3a6381d1289a89abcfc16247b13a01ed0909785de9d180"
+    },
+    {
+      "type": "DITL",
+      "id": 2108,
+      "file": "DITL-2108.bin",
+      "bytes": 98,
+      "sha256": "09f7a733f73bad5eae4f5911a0fa2de96b46a02daa3225d2365e0e6b685e1fcd"
+    },
+    {
+      "type": "DITL",
+      "id": 2109,
+      "file": "DITL-2109.bin",
+      "bytes": 104,
+      "sha256": "b52d3811363d1c15ebab37b8672f66a4d9dd36f27a9b2fd5aae21af875bf1ea9"
+    },
+    {
+      "type": "DITL",
+      "id": 2110,
+      "file": "DITL-2110.bin",
+      "bytes": 100,
+      "sha256": "25b3113a46070c0c5844d7074c86324f3427673001852355ad3b97d2268537db"
+    },
+    {
+      "type": "DITL",
+      "id": 2111,
+      "file": "DITL-2111.bin",
+      "bytes": 90,
+      "sha256": "1ea70bd6cca151d7dbd0d18cac85767a0dcf5e33f0434bf64e59bfa70d42748e"
+    },
+    {
+      "type": "DITL",
+      "id": 2112,
+      "file": "DITL-2112.bin",
+      "bytes": 94,
+      "sha256": "7201e82ac5a32a03453700aaa328a3d3db5f1b162ae1fc13ebc83f5594833475"
+    },
+    {
+      "type": "DITL",
+      "id": 2113,
+      "file": "DITL-2113.bin",
+      "bytes": 90,
+      "sha256": "6d1090bdf955d12fa9eb759066f39e5194b10aa9a83f753bd2365a5e01d13587"
+    },
+    {
+      "type": "DITL",
+      "id": 2114,
+      "file": "DITL-2114.bin",
+      "bytes": 94,
+      "sha256": "6ab57c7ca7ea463eb02052d689dc4735f1d0667f00e368dfe6eb6b69f9623233"
+    },
+    {
+      "type": "DITL",
+      "id": 2115,
+      "file": "DITL-2115.bin",
+      "bytes": 114,
+      "sha256": "19cb8ca29613a1593ca1f84dff353b6b0a642d6c1e50f98ed7be3df37a0c2703"
+    },
+    {
+      "type": "ICON",
+      "id": 2006,
+      "file": "ICON-2006.bin",
+      "bytes": 128,
+      "sha256": "f4b5cf0c8968a1b5d7f2553e29a015a8938a8c80394641224940fbbc8784b246"
+    },
+    {
+      "type": "ALRT",
+      "id": 2101,
+      "file": "ALRT-2101.bin",
+      "bytes": 12,
+      "sha256": "3a4e3b899554d8b6c455d36dd07c17c1e78b328c1f93cb91a185ea23c61d7497"
+    },
+    {
+      "type": "ALRT",
+      "id": 2102,
+      "file": "ALRT-2102.bin",
+      "bytes": 12,
+      "sha256": "76b7610afd5ffc0d37ecaeb8d14345b58c741c1f1dfbef17b3c4ac189f205df0"
+    },
+    {
+      "type": "ALRT",
+      "id": 2103,
+      "file": "ALRT-2103.bin",
+      "bytes": 12,
+      "sha256": "f590ff47516528cbba1761953010a25f0296f035ecf623a92b60a30536858c50"
+    },
+    {
+      "type": "ALRT",
+      "id": 2104,
+      "file": "ALRT-2104.bin",
+      "bytes": 12,
+      "sha256": "5a1ef40b13a0f6f945f73c458b71497d4ee55a71b0e5bb6bcc90afc723ecf738"
+    },
+    {
+      "type": "ALRT",
+      "id": 2105,
+      "file": "ALRT-2105.bin",
+      "bytes": 12,
+      "sha256": "441a06048cc916579ec04549710911e15fddc227dc85b5bf084235c2048fcc9a"
+    },
+    {
+      "type": "ALRT",
+      "id": 2106,
+      "file": "ALRT-2106.bin",
+      "bytes": 12,
+      "sha256": "2b1448d6873eab203cca1d333c325a94eb898b14c541ee28c0b5cf2f21a6532f"
+    },
+    {
+      "type": "ALRT",
+      "id": 2107,
+      "file": "ALRT-2107.bin",
+      "bytes": 12,
+      "sha256": "9c29ddcc1292908a77ef227f527844f5c00033fa991150aebf4989ce86b67599"
+    },
+    {
+      "type": "ALRT",
+      "id": 2108,
+      "file": "ALRT-2108.bin",
+      "bytes": 12,
+      "sha256": "61cc407f108df4eff80088e6e89569a37d7e26749c905dfc4c83cfe60962e0e6"
+    },
+    {
+      "type": "ALRT",
+      "id": 2109,
+      "file": "ALRT-2109.bin",
+      "bytes": 12,
+      "sha256": "fd5280cf8c458ad2dbed810842eb01a1df0da3531e96a1e8f4d17aa30d943443"
+    },
+    {
+      "type": "ALRT",
+      "id": 2110,
+      "file": "ALRT-2110.bin",
+      "bytes": 12,
+      "sha256": "540371b02e68538f71790445a6ab7d0830657ec2d0f3bc6a1d6c1d451ce1362b"
+    },
+    {
+      "type": "ALRT",
+      "id": 2111,
+      "file": "ALRT-2111.bin",
+      "bytes": 12,
+      "sha256": "1d76735689cdb6a1c1238d9283276f77781b70cab4eaede709e97546822a0af0"
+    },
+    {
+      "type": "ALRT",
+      "id": 2112,
+      "file": "ALRT-2112.bin",
+      "bytes": 12,
+      "sha256": "db95e48c7231eb969ed07c1bc68d441dfcc7d554edcb6d1af93a875174acba85"
+    },
+    {
+      "type": "ALRT",
+      "id": 2113,
+      "file": "ALRT-2113.bin",
+      "bytes": 12,
+      "sha256": "7e0cccc85d83eeaba47429cfcca3e73fded6411b667d3429219a9b949a98ad1f"
+    },
+    {
+      "type": "ALRT",
+      "id": 2114,
+      "file": "ALRT-2114.bin",
+      "bytes": 12,
+      "sha256": "39a3f8de81461f79123d01b19f37851d024f2c565b7a13ed63de30744c1ded01"
+    },
+    {
+      "type": "ALRT",
+      "id": 2115,
+      "file": "ALRT-2115.bin",
+      "bytes": 12,
+      "sha256": "8ed0e3bd93e26979e419251815c87ed56c261f555143568c20ea4c2db8704df9"
+    },
+    {
+      "type": "STR ",
+      "id": 2201,
+      "file": "STR-2201.bin",
+      "bytes": 26,
+      "sha256": "6ba9dc8c5216a2660ceaec245c56fd18426aaf01a764b5c14de48273373a7f5e"
+    },
+    {
+      "type": "STR ",
+      "id": 2202,
+      "file": "STR-2202.bin",
+      "bytes": 3,
+      "sha256": "b164d53f12c2bfc5ccc0563cd255f5c3439d303f136812225633f0a4ce8577d3"
+    },
+    {
+      "type": "STR ",
+      "id": 2203,
+      "file": "STR-2203.bin",
+      "bytes": 27,
+      "sha256": "8c0f07e5b2795c0d554919e63a208c13db3ae83ff974aa682f0d87393454d693"
+    },
+    {
+      "type": "STR ",
+      "id": 2204,
+      "file": "STR-2204.bin",
+      "bytes": 9,
+      "sha256": "d4ba988fb74e7553832e7b20ecd120627b1a371c8b1e36ebeccfbe0900e0b68b"
+    },
+    {
+      "type": "STR ",
+      "id": 2205,
+      "file": "STR-2205.bin",
+      "bytes": 7,
+      "sha256": "d25165dc1e8ae464b49cfdce399b727280f69ae770d84a99df7337e4a7498b7c"
+    },
+    {
+      "type": "STR ",
+      "id": 2206,
+      "file": "STR-2206.bin",
+      "bytes": 18,
+      "sha256": "08a62197ca049cee7c0bfbc06636a606f6cfaf37b2185335ba1849837420d0b5"
+    },
+    {
+      "type": "CNTL",
+      "id": 2501,
+      "file": "CNTL-2501.bin",
+      "bytes": 25,
+      "sha256": "4f6c61547e7a57674121dc654d4f9c7cac6f28cecb9a0c313b80852bface57a0"
+    },
+    {
+      "type": "CNTL",
+      "id": 2502,
+      "file": "CNTL-2502.bin",
+      "bytes": 29,
+      "sha256": "147b8957a52bd316196f8a6c4ae63c05259895625c867c09e631364401aa41ae"
+    },
+    {
+      "type": "PICT",
+      "id": 2400,
+      "file": "PICT-2400.bin",
+      "bytes": 6669,
+      "sha256": "8bf76f37c57e5af736421feea40b5835d98073da4a3122a1ee554ba71c8c9e4b"
+    },
+    {
+      "type": "PICT",
+      "id": 2401,
+      "file": "PICT-2401.bin",
+      "bytes": 6599,
+      "sha256": "af105c5dc0fd2f318355f6745d1430976686549f82a2306a4296f1f4241a7065"
+    }
+  ]
+}
