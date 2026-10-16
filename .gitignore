@@ -9,6 +9,7 @@ Tools/
 *.dmg
 *.dSYM/
 *.md
+!/AGENTS.md
 *.sh
 INSTALL*.txt
 *.xcuserstate

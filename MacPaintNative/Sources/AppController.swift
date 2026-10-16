@@ -13,6 +13,15 @@ enum ClipboardError: LocalizedError {
 }
 
 final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
+    private let preferences: UserDefaults
+    var modsEnabled: Bool {
+        get { preferences.bool(forKey: "modsEnabled") }
+        set {
+            preferences.set(newValue, forKey: "modsEnabled")
+            workspace?.popup = nil; workspace?.popupHover = nil
+            workspace?.refresh()
+        }
+    }
     var window: NSWindow!
     var model: PaintModel!
     var workspace: WorkspaceView!
@@ -26,6 +35,11 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var recoveryWarningShown = false
     private let selectionType = NSPasteboard.PasteboardType("org.macpaintnative.selection")
     private let lassoType = NSPasteboard.PasteboardType("org.macpaintnative.lasso")
+
+    init(preferences: UserDefaults = .standard) {
+        self.preferences = preferences
+        super.init()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
@@ -110,6 +124,11 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 item("-", ""), item("Align Left", "align:0", "⌘L", model.textAlignment == 0),
                 item("Align Middle", "align:1", "⌘M", model.textAlignment == 1), item("Align Right", "align:2", "⌘R", model.textAlignment == 2)])
         ]
+        if modsEnabled {
+            var empty = item("No mods yet", "")
+            empty.enabled = false
+            workspace.menus.append(ClassicMenu(title: "Mods", items: [empty]))
+        }
         workspace.menus[1].items[5].enabled = workspace.documentOpen
         workspace.menus[1].items[0].enabled = !workspace.documentOpen
         workspace.menus[1].items[1].enabled = !workspace.documentOpen
@@ -383,7 +402,9 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     private func showDialog(_ kind: String) {
         model.commitText(); model.acceptSelection()
-        let dialog = ClassicDialogView(model: model, kind: kind)
+        let dialog = ClassicDialogView(model: model, kind: kind, modsEnabled: modsEnabled) { [weak self] enabled in
+            self?.modsEnabled = enabled
+        }
         let rect = dialog.logicalRect
         let topLeft = workspace.viewPoint(PixelPoint(x: rect.x, y: rect.y))
         let bottomRight = workspace.viewPoint(PixelPoint(x: rect.right, y: rect.bottom))

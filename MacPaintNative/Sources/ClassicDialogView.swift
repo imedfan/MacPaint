@@ -3,7 +3,15 @@ import AppKit
 final class ClassicDialogView: NSView, NSWindowDelegate {
     let model: PaintModel
     let kind: String
-    weak var panel: NSPanel? { didSet { panel?.delegate = self; panel?.makeFirstResponder(self) } }
+    weak var panel: NSPanel? {
+        didSet {
+            panel?.delegate = self
+            if let checkbox = modsCheckbox { panel?.makeFirstResponder(checkbox) }
+            else { panel?.makeFirstResponder(self) }
+        }
+    }
+    private var modsCheckbox: NSButton?
+    private let onModsChanged: ((Bool) -> Void)?
     private var draftPattern: Pattern
     private var paintBlack = true
     private var lastPainted: PixelPoint?
@@ -11,12 +19,34 @@ final class ClassicDialogView: NSView, NSWindowDelegate {
     private var logicalSize: NSSize { NSSize(width: logicalRect.width, height: logicalRect.height) }
     override var isFlipped: Bool { true }
     override var acceptsFirstResponder: Bool { true }
-    init(model: PaintModel, kind: String) {
+    init(model: PaintModel, kind: String, modsEnabled: Bool = false, onModsChanged: ((Bool) -> Void)? = nil) {
         self.model = model; self.kind = kind; draftPattern = model.pattern
+        self.onModsChanged = onModsChanged
         super.init(frame: NSRect(x: 0, y: 0, width: 576, height: 360))
         frame.size = NSSize(width: logicalSize.width * 2, height: logicalSize.height * 2)
+        if kind == "about" {
+            let checkbox = NSButton(checkboxWithTitle: "Enable mods", target: self, action: #selector(changeMods(_:)))
+            checkbox.state = modsEnabled ? .on : .off
+            checkbox.font = .systemFont(ofSize: 12)
+            checkbox.setAccessibilityElement(true)
+            checkbox.setAccessibilityRole(.checkBox)
+            checkbox.setAccessibilityIdentifier("enable-mods")
+            modsCheckbox = checkbox
+            addSubview(checkbox)
+            needsLayout = true
+        }
     }
     required init?(coder: NSCoder) { fatalError() }
+    override func layout() {
+        super.layout()
+        guard let checkbox = modsCheckbox else { return }
+        let sx = bounds.width / logicalSize.width, sy = bounds.height / logicalSize.height
+        checkbox.frame = NSRect(x: 6 * sx, y: 110 * sy, width: 180 * sx, height: 16 * sy)
+        checkbox.bounds = NSRect(x: 0, y: 0, width: 180, height: 16)
+    }
+    @objc private func changeMods(_ sender: NSButton) {
+        onModsChanged?(sender.state == .on)
+    }
     override func draw(_ dirtyRect: NSRect) {
         let screen = renderDialog()
         NSGraphicsContext.current?.imageInterpolation = .none
@@ -101,6 +131,7 @@ final class ClassicDialogView: NSView, NSWindowDelegate {
     override func keyDown(with event: NSEvent) {
         if event.keyCode == 53 { close(accept: false) }
         else if event.keyCode == 36 { close(accept: true) }
+        else if event.keyCode == 49 { modsCheckbox?.performClick(nil) }
     }
     override func mouseDown(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
