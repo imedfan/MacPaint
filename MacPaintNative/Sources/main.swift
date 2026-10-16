@@ -13,6 +13,7 @@ if let index = CommandLine.arguments.firstIndex(of: "--verify-model"), index + 1
             + PageOverviewVerification.model(resources: resources)
             + FontVerification.model(resources: resources)
             + CatalogVerification.model(resources: resources, output: output)
+            + Macintosh128KVerification.model(resources: resources)
         try JSONSerialization.data(withJSONObject: ["checks": checks, "count": checks.count,
             "scope": "Document model and bitmap raster only; no window, keyboard routing, pasteboard or WindowServer verification."], options: [.prettyPrinted, .sortedKeys])
             .write(to: report)

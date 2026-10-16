@@ -42,8 +42,11 @@ final class WorkspaceView: NSView {
     private var nextCaretChange: TimeInterval = 0
     var animationTimer: Timer?
     private var handStart: (screen: PixelPoint, origin: PixelPoint)?
+    private var pendingHandOrigin: PixelPoint?
     private var lastPointer = PixelPoint.zero
     private var pointerInside = false
+    private var mouse128K = Macintosh128KMouse()
+    func reset128KMouse() { mouse128K.reset() }
     private struct CursorKey: Hashable {
         let code: UInt8
         let mask: UInt8
@@ -85,8 +88,23 @@ final class WorkspaceView: NSView {
                                                 .activeInKeyWindow, .inVisibleRect, .enabledDuringMouseDrag], owner: self))
     }
     private func trackPointer(_ event: NSEvent) {
-        lastPointer = screenPoint(event)
+        let point = screenPoint(event)
+        lastPointer = point
         pointerInside = bounds.contains(convert(event.locationInWindow, from: nil))
+        guard controller?.macintosh128K.active == true, controller?.macintosh128K.mouseScaling == true,
+              controller?.pending128KOperation == nil, NSApp.modalWindow == nil, window?.attachedSheet == nil,
+              window?.isKeyWindow == true, popup == nil, helpID == nil, !pageOverview, documentOpen,
+              PixelRect(x: 80, y: 48, width: 416, height: 240).contains(point) else {
+            mouse128K.reset(); return
+        }
+        if [.leftMouseDown, .mouseEntered, .cursorUpdate].contains(event.type) { mouse128K.reset() }
+        let mapped = mouse128K.move(to: point, timestamp: event.timestamp)
+        lastPointer = mapped
+        if mapped != point, let window {
+            let global = window.convertPoint(toScreen: convert(viewPoint(mapped), to: nil))
+            let desktopTop = NSScreen.screens.first?.frame.maxY ?? 0
+            CGWarpMouseCursorPosition(CGPoint(x: global.x, y: desktopTop - global.y))
+        }
     }
     override func cursorUpdate(with event: NSEvent) {
         trackPointer(event); updatePointerCursor()
@@ -95,7 +113,7 @@ final class WorkspaceView: NSView {
         trackPointer(event); updatePointerCursor()
     }
     override func mouseExited(with event: NSEvent) {
-        pointerInside = false; NSCursor.arrow.set()
+        pointerInside = false; mouse128K.reset(); NSCursor.arrow.set()
     }
     func screenPoint(_ event: NSEvent) -> PixelPoint {
         let p = convert(event.locationInWindow, from: nil), offset = workspaceOrigin
@@ -131,6 +149,7 @@ final class WorkspaceView: NSView {
         caretVisible = model.textOrigin != nil
         nextCaretChange = ProcessInfo.processInfo.systemUptime + 0.5
         if pointerInside && window?.isKeyWindow == true { updatePointerCursor() }
+        controller?.show128KMemoryRefusal()
     }
     override func draw(_ dirtyRect: NSRect) {
         NSColor(calibratedWhite: 0.2, alpha: 1).setFill(); bounds.fill()
@@ -288,6 +307,13 @@ final class WorkspaceView: NSView {
                 if popupHover == i && item.enabled { screen.invert(PixelRect(x: rect.x + 1, y: y - 1, width: rect.width - 2, height: 18)) }
             }
         }
+        if let operation = controller?.pending128KOperation {
+            let rect = PixelRect(x: 138, y: 124, width: 280, height: 88)
+            screen.fill(rect, pattern: .white); screen.frame(rect, width: 2)
+            font.draw("Macintosh 128K", in: &screen, at: PixelPoint(x: 154, y: 145))
+            font.draw(operation, in: &screen, at: PixelPoint(x: 154, y: 170))
+            font.draw("Esc or click to cancel", in: &screen, at: PixelPoint(x: 154, y: 195))
+        }
         return screen
     }
     private func menuRect(_ index: Int) -> PixelRect {
@@ -307,6 +333,7 @@ final class WorkspaceView: NSView {
         return nil
     }
     override func mouseDown(with event: NSEvent) {
+        if controller?.pending128KOperation != nil { controller?.cancel128KOperation(); return }
         window?.makeFirstResponder(self)
         trackPointer(event)
         defer { updatePointerCursor() }
@@ -357,14 +384,23 @@ final class WorkspaceView: NSView {
             if model.fatBits && p.x <= 135 && p.y <= 79 {
                 model.toggleFatBits()
             } else if model.tool == .hand || (model.tool == .pencil && event.modifierFlags.contains(.option)) {
-                handStart = (p, model.fatBits ? model.fatCenter : model.origin)
+                handStart = (p, model.fatBits ? model.fatCenter : model.origin); pendingHandOrigin = nil
             } else if model.tool == .pencil && event.modifierFlags.contains(.command) {
                 model.toggleFatBits(at: point)
-            } else { model.begin(at: point, modifiers: modifiers(event), clickCount: event.clickCount) }
+            } else {
+                let flags = modifiers(event), clicks = event.clickCount
+                if model.tool == .bucket, controller?.schedule128KOperation("bucket", label: "Paint Bucket...", action: { [weak self] in
+                    guard let self else { return }
+                    self.model.begin(at: point, modifiers: flags, clickCount: clicks)
+                    self.model.end(at: point, modifiers: flags)
+                }) == true { return }
+                model.begin(at: point, modifiers: flags, clickCount: clicks)
+            }
         }
         refresh()
     }
     override func mouseDragged(with event: NSEvent) {
+        guard controller?.pending128KOperation == nil else { return }
         trackPointer(event)
         let p = lastPointer
         if popup != nil { mouseMoved(with: event); return }
@@ -378,11 +414,14 @@ final class WorkspaceView: NSView {
             if model.fatBits {
                 model.fatCenter = PixelPoint(x: max(model.origin.x + 26, min(model.origin.x + 390, hand.origin.x + dx / 3)),
                                              y: max(model.origin.y + 15, min(model.origin.y + 225, hand.origin.y + dy / 3)))
+            } else if controller?.macintosh128K.timed == true {
+                pendingHandOrigin = PixelPoint(x: hand.origin.x + dx, y: hand.origin.y + dy)
             } else { model.setOrigin(PixelPoint(x: hand.origin.x + dx, y: hand.origin.y + dy)) }
         } else { model.drag(to: documentPoint(p), modifiers: modifiers(event)) }
         refresh()
     }
     override func mouseUp(with event: NSEvent) {
+        guard controller?.pending128KOperation == nil else { return }
         trackPointer(event)
         if pageOverview {
             overview?.drag(to: PixelPoint(x: lastPointer.x - 192, y: lastPointer.y - 48))
@@ -401,8 +440,16 @@ final class WorkspaceView: NSView {
             }
             refresh(); return
         }
-        if handStart != nil { handStart = nil }
-        else if popup == nil { model.end(at: documentPoint(screenPoint(event)), modifiers: modifiers(event)) }
+        if handStart != nil {
+            handStart = nil
+            if let target = pendingHandOrigin {
+                pendingHandOrigin = nil
+                if controller?.schedule128KOperation("scroll", label: "Reading floppy...", action: { [weak self] in
+                    self?.model.setOrigin(target)
+                }) == true { return }
+            }
+        }
+        else if popup == nil { model.end(at: documentPoint(lastPointer), modifiers: modifiers(event)) }
         refresh()
     }
     override func mouseMoved(with event: NSEvent) {
@@ -420,7 +467,7 @@ final class WorkspaceView: NSView {
         updatePointerCursor()
     }
     private func updatePointerCursor() {
-        guard pointerInside, documentOpen, popup == nil, helpID == nil, !pageOverview,
+        guard controller?.pending128KOperation == nil, pointerInside, documentOpen, popup == nil, helpID == nil, !pageOverview,
               (80..<496).contains(lastPointer.x), (48..<288).contains(lastPointer.y) else {
             NSCursor.arrow.set(); return
         }
@@ -478,7 +525,13 @@ final class WorkspaceView: NSView {
         cursor.set()
     }
     override func scrollWheel(with event: NSEvent) {
-        guard documentOpen, !pageOverview else { return }
+        guard documentOpen, !pageOverview, controller?.pending128KOperation == nil else { return }
+        if !model.fatBits {
+            let target = PixelPoint(x: model.origin.x + Int(event.scrollingDeltaX), y: model.origin.y + Int(event.scrollingDeltaY))
+            if controller?.schedule128KOperation("scroll", label: "Reading floppy...", action: { [weak self] in
+                self?.model.setOrigin(target)
+            }) == true { return }
+        }
         if model.fatBits {
             model.fatCenter = PixelPoint(x: max(model.origin.x + 26, min(model.origin.x + 390, model.fatCenter.x + Int(event.scrollingDeltaX) / 3)),
                                          y: max(model.origin.y + 15, min(model.origin.y + 225, model.fatCenter.y + Int(event.scrollingDeltaY) / 3)))
@@ -486,6 +539,10 @@ final class WorkspaceView: NSView {
         refresh()
     }
     override func keyDown(with event: NSEvent) {
+        if controller?.pending128KOperation != nil {
+            if event.keyCode == 53 { controller?.cancel128KOperation() }
+            return
+        }
         guard !pageOverview else { return }
         if event.keyCode == 53 && model.textOrigin != nil && helpID == nil && !pageOverview {
             refresh(); return
@@ -511,6 +568,7 @@ final class WorkspaceView: NSView {
         refresh()
     }
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if controller?.pending128KOperation != nil { return true }
         if pageOverview { return true }
         if documentOpen, event.modifierFlags.contains([.command, .shift]),
            event.charactersIgnoringModifiers?.lowercased() == "e", model.selection?.isLasso == false {

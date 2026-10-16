@@ -14,10 +14,16 @@ enum ClipboardError: LocalizedError {
 
 final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private let preferences: UserDefaults
+    let macintosh128K: Macintosh128K
+    private var delayed128KOperation: Timer?
+    private var operation128KGeneration = 0
+    private(set) var pending128KOperation: String?
     var modsEnabled: Bool {
         get { preferences.bool(forKey: "modsEnabled") }
         set {
             preferences.set(newValue, forKey: "modsEnabled")
+            macintosh128K.modsEnabled = newValue
+            update128KConfiguration()
             workspace?.popup = nil; workspace?.popupHover = nil
             workspace?.refresh()
         }
@@ -38,13 +44,16 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     init(preferences: UserDefaults = .standard) {
         self.preferences = preferences
+        macintosh128K = Macintosh128K(preferences: preferences)
         super.init()
+        macintosh128K.modsEnabled = modsEnabled
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
             let resourcesURL = Bundle.main.resourceURL!.appendingPathComponent("Resources")
             model = PaintModel(resources: try ClassicResources(directory: resourcesURL))
+            model.macintosh128K = macintosh128K
         } catch {
             let alert = NSAlert(error: error); alert.runModal(); NSApp.terminate(nil); return
         }
@@ -125,9 +134,9 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 item("Align Middle", "align:1", "⌘M", model.textAlignment == 1), item("Align Right", "align:2", "⌘R", model.textAlignment == 2)])
         ]
         if modsEnabled {
-            var empty = item("No mods yet", "")
-            empty.enabled = false
-            workspace.menus.append(ClassicMenu(title: "Mods", items: [empty]))
+            var commands = [item("Macintosh 128K...", "macintosh128K", "", macintosh128K.active)]
+            if pending128KOperation != nil { commands.append(item("Cancel Operation", "cancel128K")) }
+            workspace.menus.append(ClassicMenu(title: "Mods", items: commands))
         }
         workspace.menus[1].items[5].enabled = workspace.documentOpen
         workspace.menus[1].items[0].enabled = !workspace.documentOpen
@@ -148,6 +157,13 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if workspace.pageOverview {
             for menu in workspace.menus.indices {
                 for item in workspace.menus[menu].items.indices { workspace.menus[menu].items[item].enabled = false }
+            }
+        }
+        if pending128KOperation != nil {
+            for menu in workspace.menus.indices {
+                for item in workspace.menus[menu].items.indices {
+                    workspace.menus[menu].items[item].enabled = workspace.menus[menu].items[item].command == "cancel128K"
+                }
             }
         }
         // Native menus also expose keyboard commands and accessibility to macOS.
@@ -173,8 +189,16 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     func perform(_ command: String, modifiers: PaintModifiers = []) {
         guard !workspace.pageOverview else { return }
+        if command == "cancel128K" { cancel128KOperation(); return }
+        guard pending128KOperation == nil else { return }
+        if schedule128KOperation(command, label: command == "saveAs" ? "Saving..." : command.capitalized + "...",
+                                action: { [weak self] in self?.performImmediately(command, modifiers: modifiers) }) { return }
+        performImmediately(command, modifiers: modifiers)
+    }
+    private func performImmediately(_ command: String, modifiers: PaintModifiers) {
         do {
             switch command {
+            case "macintosh128K": if modsEnabled { show128KPanel() }
             case "new":
                 if shouldDiscard() {
                     model.newDocument(); documentURL = nil; workspace.documentTitle = "Untitled"; workspace.documentOpen = true
@@ -209,6 +233,60 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
             }
         } catch { NSAlert(error: error).runModal() }
         workspace.refresh()
+    }
+    func update128KConfiguration() {
+        model?.macintosh128K = macintosh128K
+        model?.memoryRefusal = nil
+        cancel128KOperation()
+        workspace?.reset128KMouse()
+        workspace?.refresh()
+    }
+    @discardableResult func schedule128KOperation(_ command: String, label: String, action: @escaping () -> Void) -> Bool {
+        guard macintosh128K.delay(for: command) > 0 else { return false }
+        guard pending128KOperation == nil else { return true }
+        operation128KGeneration += 1
+        let generation = operation128KGeneration
+        pending128KOperation = label
+        let work = Timer(timeInterval: macintosh128K.delay(for: command), repeats: false) { [weak self] _ in
+            guard let self, self.operation128KGeneration == generation else { return }
+            self.delayed128KOperation = nil; self.pending128KOperation = nil
+            action()
+            self.workspace?.refresh()
+        }
+        delayed128KOperation = work
+        RunLoop.main.add(work, forMode: .common)
+        workspace?.reset128KMouse(); workspace?.refresh()
+        return true
+    }
+    func cancel128KOperation() {
+        delayed128KOperation?.invalidate(); delayed128KOperation = nil
+        operation128KGeneration += 1; pending128KOperation = nil
+        workspace?.refresh()
+    }
+    func show128KMemoryRefusal() {
+        guard let message = model.memoryRefusal, window.attachedSheet == nil else { return }
+        model.memoryRefusal = nil
+        workspace.reset128KMouse()
+        let alert = NSAlert(); alert.messageText = "Macintosh 128K: Not enough memory"
+        alert.informativeText = message
+        alert.beginSheetModal(for: window)
+    }
+    private func show128KPanel() {
+        workspace.reset128KMouse()
+        let size = workspace.viewPoint(PixelPoint(x: 1, y: 1)).x - workspace.viewPoint(.zero).x
+        let content = Macintosh128KPanel(profile: macintosh128K, model: model, scale: size) { [weak self] in
+            self?.update128KConfiguration()
+        }
+        let panel = ClassicPanel(contentRect: NSRect(origin: .zero, size: content.frame.size),
+                                 styleMask: [.borderless], backing: .buffered, defer: false)
+        panel.title = "Macintosh 128K"; panel.contentView = content; content.panel = panel
+        let origin = workspace.viewPoint(PixelPoint(x: 56, y: 39))
+        panel.setFrameTopLeftPoint(window.convertPoint(toScreen: workspace.convert(origin, to: nil)))
+        panel.makeKeyAndOrderFront(nil); panel.makeFirstResponder(content)
+        NSApp.runModal(for: panel); panel.orderOut(nil)
+    }
+    func windowDidResignKey(_ notification: Notification) {
+        workspace?.reset128KMouse()
     }
     func shouldDiscard() -> Bool {
         guard let model, workspace != nil else { return true }
@@ -278,11 +356,13 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         guard !workspace.pageOverview else { return false }
+        cancel128KOperation()
         guard shouldDiscard() else { return false }
         closeCurrentDocument(); return true
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard !workspace.pageOverview else { return .terminateCancel }
+        cancel128KOperation()
         guard shouldDiscard() else { return .terminateCancel }
         recoveryWork?.cancel(); recoveryGeneration += 1
         do { try recovery?.close() }
@@ -353,6 +433,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
             guard bytes.count >= 4 else { throw ClipboardError.invalid("missing bitmap dimensions") }
             let width = Int(bytes[0]) * 256 + Int(bytes[1]), height = Int(bytes[2]) * 256 + Int(bytes[3])
             guard width > 0, height > 0, width <= 576, height <= 720 else { throw ClipboardError.invalid("invalid bitmap dimensions") }
+            guard model.allowVirtualMemory("Paste picture", additional: ((width + 7) / 8) * height * 2) else { return }
             var bitmap = Bitmap(width: width, height: height), mask = bitmap
             guard bytes.count == 4 + bitmap.bytes.count * 2 else { throw ClipboardError.invalid("incomplete bitmap or mask") }
             bitmap.bytes = Array(bytes[4..<(4 + bitmap.bytes.count)]); mask.bytes = Array(bytes[(4 + bitmap.bytes.count)...])
@@ -363,6 +444,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
             guard width > 0, height > 0, width <= 16384, height <= 16384, width <= 16_777_216 / height else {
                 throw ClipboardError.invalid("picture dimensions are too large")
             }
+            guard model.allowVirtualMemory("Paste picture", additional: ((width + 7) / 8) * height * 2) else { return }
             var bitmap = Bitmap(width: width, height: height)
             for y in 0..<height { for x in 0..<width {
                 let color = rep.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB) ?? .white

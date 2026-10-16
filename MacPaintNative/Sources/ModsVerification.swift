@@ -12,6 +12,7 @@ enum ModsVerification {
         defer {
             preferences.removePersistentDomain(forName: domain)
             view.controller = controller
+            model.macintosh128K = controller.macintosh128K
             window.setFrame(originalFrame, display: true)
             model.newDocument(); view.refresh()
         }
@@ -91,7 +92,7 @@ enum ModsVerification {
             try toggle(enabled: true, keyboard: false, scale: scale)
             try check(view.menus.map(\.title) == classicTitles + ["Mods"], "classic Mods menu is last, immediately after Style at \(scale)x")
             try check(NSApp.mainMenu!.items.map(\.title) == nativeTitles + ["Mods"], "native Mods menu is last, immediately after Style at \(scale)x")
-            try check(view.menus.last!.items.allSatisfy { !$0.enabled }, "Mods empty state has no active commands before mods are added")
+            try check(view.menus.last!.items.contains { $0.command == "macintosh128K" && $0.enabled }, "Mods exposes the Macintosh 128K settings command")
             let reloaded = AppController(preferences: UserDefaults(suiteName: domain)!)
             try check(reloaded.modsEnabled, "a fresh application controller restores Enable mods from its preferences")
             view.popup = view.menus.count - 1; view.popupHover = 0

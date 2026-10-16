@@ -44,6 +44,20 @@ struct PaintState {
 /// Native translation of MacPaint.p's document operations. AppKit owns no pixels.
 final class PaintModel {
     let resources: ClassicResources
+    var macintosh128K: Macintosh128K?
+    var memoryRefusal: String?
+    var virtualHeapUsed: Int {
+        (selection?.mask.bytes.count ?? 0) + (selection?.textScrap?.utf8.count ?? 0) * 2
+            + text.utf8.count * 2 + polygonPoints.count * 4
+            + (gesture?.points.count ?? 0) * 4
+    }
+    @discardableResult func allowVirtualMemory(_ operation: String, additional bytes: Int) -> Bool {
+        guard macintosh128K?.active == true else { return true }
+        let available = max(0, Macintosh128K.heapBytes - virtualHeapUsed)
+        guard bytes > available else { return true }
+        memoryRefusal = "\(operation) needs about \(bytes) bytes; the virtual heap has \(available) bytes free. Your drawing has been preserved.\n\nThis 128K memory budget is approximate. Disable the mode in Mods → Macintosh 128K to perform this operation."
+        return false
+    }
     var bitmap = Bitmap()
     var selection: FloatingSelection?
     var undoState: PaintState?
@@ -117,6 +131,7 @@ final class PaintModel {
     }
     func markSaved() { savedBitmap = displayBitmap; savedPatterns = patterns }
     func newDocument() {
+        memoryRefusal = nil; gesture = nil
         bitmap = Bitmap(); selection = nil; undoState = nil; origin = PixelPoint(x: 80, y: 120)
         fatCenter = PixelPoint(x: 288, y: 240)
         patterns = resources.patterns; text = ""; textOrigin = nil; textBase = nil; textLeft = 0
@@ -204,6 +219,7 @@ final class PaintModel {
     func begin(at point: PixelPoint, modifiers: PaintModifiers = [], clickCount: Int = 1) {
         let p = snapped(point)
         if tool == .polygon || tool == .filledPolygon {
+            guard allowVirtualMemory("Polygon", additional: 4) else { return }
             if polygonPoints.isEmpty { checkpoint(); acceptSelection(); polygonModifiers = modifiers }
             if polygonPoints.count > 2 && abs(p.x - polygonPoints[0].x) + abs(p.y - polygonPoints[0].y) < 4 * lineWidth {
                 finishPolygon(closed: true); return
@@ -216,6 +232,12 @@ final class PaintModel {
             textOrigin = p; textLeft = p.x; textBase = bitmap; text = ""; return
         }
         if tool == .hand { return }
+        if tool == .bucket {
+            guard allowVirtualMemory("Paint Bucket", additional: 8_192) else { return }
+        }
+        if tool == .selection || tool == .lasso {
+            guard allowVirtualMemory("Selection mask", additional: max(0, Macintosh128K.workingBufferBytes - (selection?.mask.bytes.count ?? 0))) else { return }
+        }
         checkpoint()
         var moving = false
         var selectionOrigin: PixelPoint?
@@ -243,6 +265,7 @@ final class PaintModel {
     }
     func drag(to point: PixelPoint, modifiers: PaintModifiers = []) {
         guard var g = gesture else { return }
+        guard allowVirtualMemory("Drawing geometry", additional: 4) else { return }
         var p = snapped(point, pin: !g.moving)
         let stretching = g.moving && g.modifiers.contains(.command) && !g.modifiers.contains(.option)
         if modifiers.contains(.shift) && !stretching {
@@ -338,14 +361,19 @@ final class PaintModel {
         selection = FloatingSelection(pixels: pixels, mask: mask, origin: PixelPoint(x: rect.x, y: rect.y), kind: isLasso ? .lasso : .rectangle)
     }
     func selectAll() {
+        guard allowVirtualMemory("Selection mask", additional: max(0, Macintosh128K.workingBufferBytes - (selection?.mask.bytes.count ?? 0))) else { return }
         commitText(); acceptSelection()
         var mask = Bitmap(width: activeRect.width, height: activeRect.height); mask.fill(mask.bounds, pattern: .black)
         liftSelection(rect: activeRect, mask: mask); tool = .selection
     }
     func insert(_ pixels: Bitmap, mask: Bitmap? = nil, isLasso: Bool = false) {
+        guard allowVirtualMemory("Paste picture", additional: pixels.bytes.count * 2) else { return }
         // MacPaint.p:Paste uses an existing rectangle as the destination, and
         // CenterScrap otherwise. SetSelRect clips the result to the active view.
         let destination = selection.flatMap { $0.isLasso ? nil : $0.rect }
+        if let destination {
+            guard allowVirtualMemory("Resize pasted picture", additional: ((destination.width + 7) / 8) * destination.height * 2) else { return }
+        }
         checkpoint(); acceptSelection()
         let rect: PixelRect
         if let destination { rect = destination }
@@ -396,6 +424,7 @@ final class PaintModel {
         textOrigin = next; textBase = bitmap; text = ""
     }
     func insertText(_ string: String) {
+        guard allowVirtualMemory("Paste text", additional: string.utf8.count * 2 + Macintosh128K.workingBufferBytes) else { return }
         let previousFrame = selection.flatMap { $0.isLasso ? nil : $0.rect }
         checkpoint(); acceptSelection()
         let frame: PixelRect
@@ -427,6 +456,9 @@ final class PaintModel {
     }
     func editSelection(_ operation: String, modifiers: PaintModifiers = []) {
         guard var s = selection else { return }
+        if ["edges", "horizontal", "vertical", "rotate"].contains(operation) {
+            guard allowVirtualMemory("Transform selection", additional: s.pixels.bytes.count * 2) else { return }
+        }
         checkpoint()
         if operation == "clear" { selection = nil; return }
             switch operation {
@@ -536,6 +568,7 @@ final class PaintModel {
         } }
     }
     func updateText(_ newText: String) {
+        guard allowVirtualMemory("Text", additional: max(0, newText.utf8.count - text.utf8.count) * 2) else { return }
         if let selected = selection, let string = selected.textScrap {
             renderTextSelection(string, frame: selected.rect); return
         }
@@ -572,6 +605,7 @@ final class PaintModel {
             width = max(1, Int(Double(r.width) * factor)); height = max(1, Int(Double(r.height) * factor))
         }
         width = min(576, width); height = min(720, height)
+        guard allowVirtualMemory("Stretch selection", additional: ((width + 7) / 8) * height * 2) else { return }
         let x = horizontal < 0 ? r.right - width : r.x, y = vertical < 0 ? r.bottom - height : r.y
         if let string = source.textScrap {
             renderTextSelection(string, frame: PixelRect(x: x, y: y, width: width, height: height)); return

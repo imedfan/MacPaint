@@ -159,6 +159,8 @@ enum Verification {
         checks.append(contentsOf: try FontVerification.window(controller: controller, output: output))
         checks.append(contentsOf: try CatalogVerification.window(controller: controller, output: output))
         checks.append(contentsOf: try ModsVerification.run(controller: controller, output: output))
+        checks.append(contentsOf: try Macintosh128KVerification.model(resources: model.resources))
+        checks.append(contentsOf: try Macintosh128KVerification.run(controller: controller, output: output))
         // Exercise real NSView mouse routing at the view's current integer scale.
         blankAtTopLeft()
         view.documentOpen = true
