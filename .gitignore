@@ -9,6 +9,7 @@ Tools/
 *.dmg
 *.dSYM/
 *.md
+!/gallery/SOURCES.md
 *.sh
 INSTALL*.txt
 *.xcuserstate
