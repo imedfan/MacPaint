@@ -1,5 +1,11 @@
 import AppKit
 
+if CommandLine.arguments.contains("--mcp") || URL(fileURLWithPath: CommandLine.arguments[0]).lastPathComponent == "MacPaintMCP" {
+    let index = CommandLine.arguments.firstIndex(of: "--socket")
+    let path = index.flatMap { $0 + 1 < CommandLine.arguments.count ? CommandLine.arguments[$0 + 1] : nil } ?? AITransport.defaultPath
+    MCPServer.run(path: path)
+}
+
 if let index = CommandLine.arguments.firstIndex(of: "--verify-model"), index + 1 < CommandLine.arguments.count {
     do {
         let output = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
@@ -28,6 +34,10 @@ if let index = CommandLine.arguments.firstIndex(of: "--verify-model"), index + 1
 let application = PaintApplication.shared
 application.setActivationPolicy(.regular)
 let delegate = AppController()
+if let index = CommandLine.arguments.firstIndex(of: "--verify-ai"), index + 1 < CommandLine.arguments.count {
+    delegate.verificationDirectory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
+    delegate.verificationAIOnly = true
+}
 if let index = CommandLine.arguments.firstIndex(of: "--verify"), index + 1 < CommandLine.arguments.count {
     delegate.verificationDirectory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
 }

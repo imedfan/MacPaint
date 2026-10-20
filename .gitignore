@@ -16,3 +16,8 @@ INSTALL*.txt
 xcuserdata/
 __pycache__/
 /MacPaint 1.3 Source/
+!/MacPaintNative/Tools/
+/MacPaintNative/Tools/*
+!/MacPaintNative/Tools/generate_project.py
+!/MacPaintNative/AI-MCP-setup.md
+!/MacPaintNative/Research/AI-drawing-MCP.md

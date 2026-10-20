@@ -15,7 +15,7 @@ struct ClassicMenu {
 }
 
 final class WorkspaceView: NSView {
-    let model: PaintModel
+    var model: PaintModel
     weak var controller: AppController?
     var menus = [ClassicMenu]()
     var documentTitle = "Untitled"
@@ -42,6 +42,8 @@ final class WorkspaceView: NSView {
     private var nextCaretChange: TimeInterval = 0
     var animationTimer: Timer?
     private var handStart: (screen: PixelPoint, origin: PixelPoint)?
+    var allowsAICommands: Bool { !pageOverview && helpID == nil && popup == nil && handStart == nil }
+    static let aiStopRect = PixelRect(x: 218, y: 187, width: 76, height: 20)
     private var pendingHandOrigin: PixelPoint?
     private var lastPointer = PixelPoint.zero
     private var pointerInside = false
@@ -314,6 +316,14 @@ final class WorkspaceView: NSView {
             font.draw(operation, in: &screen, at: PixelPoint(x: 154, y: 170))
             font.draw("Esc or click to cancel", in: &screen, at: PixelPoint(x: 154, y: 195))
         }
+        if let progress = controller?.aiProgress {
+            let rect = PixelRect(x: 138, y: 120, width: 250, height: 98)
+            screen.fill(rect, pattern: .white); screen.frame(rect, width: 2)
+            font.draw("AI control", in: &screen, at: PixelPoint(x: 154, y: 142))
+            font.draw(progress, in: &screen, at: PixelPoint(x: 154, y: 166))
+            screen.frame(Self.aiStopRect)
+            font.draw("Stop", in: &screen, at: PixelPoint(x: 242, y: 201))
+        }
         return screen
     }
     private func menuRect(_ index: Int) -> PixelRect {
@@ -333,6 +343,10 @@ final class WorkspaceView: NSView {
         return nil
     }
     override func mouseDown(with event: NSEvent) {
+        if controller?.aiBatch != nil {
+            if Self.aiStopRect.contains(screenPoint(event)) { controller?.cancelAIDrawing() }
+            return
+        }
         if controller?.pending128KOperation != nil { controller?.cancel128KOperation(); return }
         window?.makeFirstResponder(self)
         trackPointer(event)
@@ -400,6 +414,7 @@ final class WorkspaceView: NSView {
         refresh()
     }
     override func mouseDragged(with event: NSEvent) {
+        guard controller?.aiBatch == nil else { return }
         guard controller?.pending128KOperation == nil else { return }
         trackPointer(event)
         let p = lastPointer
@@ -421,6 +436,7 @@ final class WorkspaceView: NSView {
         refresh()
     }
     override func mouseUp(with event: NSEvent) {
+        guard controller?.aiBatch == nil else { return }
         guard controller?.pending128KOperation == nil else { return }
         trackPointer(event)
         if pageOverview {
@@ -525,6 +541,7 @@ final class WorkspaceView: NSView {
         cursor.set()
     }
     override func scrollWheel(with event: NSEvent) {
+        guard controller?.aiBatch == nil else { return }
         guard documentOpen, !pageOverview, controller?.pending128KOperation == nil else { return }
         if !model.fatBits {
             let target = PixelPoint(x: model.origin.x + Int(event.scrollingDeltaX), y: model.origin.y + Int(event.scrollingDeltaY))
@@ -539,6 +556,10 @@ final class WorkspaceView: NSView {
         refresh()
     }
     override func keyDown(with event: NSEvent) {
+        if controller?.aiBatch != nil {
+            if event.keyCode == 53 { controller?.cancelAIDrawing() }
+            return
+        }
         if controller?.pending128KOperation != nil {
             if event.keyCode == 53 { controller?.cancel128KOperation() }
             return
@@ -568,6 +589,7 @@ final class WorkspaceView: NSView {
         refresh()
     }
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if controller?.aiBatch != nil { return true }
         if controller?.pending128KOperation != nil { return true }
         if pageOverview { return true }
         if documentOpen, event.modifierFlags.contains([.command, .shift]),

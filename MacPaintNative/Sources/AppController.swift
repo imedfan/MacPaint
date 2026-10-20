@@ -18,12 +18,23 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var delayed128KOperation: Timer?
     private var operation128KGeneration = 0
     private(set) var pending128KOperation: String?
+    var aiListener: AIControlListener?
+    var aiTimer: Timer?
+    var aiBatch: AIDrawingBatch?
+    var aiDocumentID = UUID().uuidString
+    var aiParkedDocuments = [AIDocumentSession]()
+    var aiControlStatus = "AI control is off."
+    var aiControlEnabled: Bool {
+        get { preferences.bool(forKey: "aiControl.enabled") }
+        set { preferences.set(newValue, forKey: "aiControl.enabled"); updateAIControl() }
+    }
     var modsEnabled: Bool {
         get { preferences.bool(forKey: "modsEnabled") }
         set {
             preferences.set(newValue, forKey: "modsEnabled")
             macintosh128K.modsEnabled = newValue
             update128KConfiguration()
+            updateAIControl()
             workspace?.popup = nil; workspace?.popupHover = nil
             workspace?.refresh()
         }
@@ -35,6 +46,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var verificationDirectory: URL?
     var verificationReopenURL: URL?
     var verificationRecoveryMode: String?
+    var verificationAIOnly = false
     var recovery: RecoveryStore?
     private var recoveryWork: DispatchWorkItem?
     private var recoveryGeneration = 0
@@ -81,11 +93,16 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.center(); refreshMenus(); window.makeKeyAndOrderFront(nil)
         window.makeFirstResponder(workspace)
         NSApp.activate(ignoringOtherApps: true)
+        if verificationDirectory == nil { updateAIControl() }
         if let recoveryError { showRecoveryError(recoveryError) }
         if let verificationDirectory {
-            DispatchQueue.main.async { [self] in
+            let runVerification = { [self] in
                 do {
-                    if verificationRecoveryMode == "write" {
+                    if verificationAIOnly {
+                        let checks = try ModsVerification.run(controller: self, output: verificationDirectory)
+                            + AIControlVerification.run(controller: self, output: verificationDirectory)
+                        print("\(checks.count) mods and AI control checks passed.")
+                    } else if verificationRecoveryMode == "write" {
                         try RecoveryVerification.writeAndExit(controller: self, output: verificationDirectory)
                     } else if verificationRecoveryMode == "read" {
                         try RecoveryVerification.readAfterExit(controller: self, output: verificationDirectory)
@@ -99,6 +116,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     exit(1)
                 }
             }
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in runVerification() }
         }
     }
     func refreshMenus() {
@@ -135,6 +153,9 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         ]
         if modsEnabled {
             var commands = [item("Macintosh 128K...", "macintosh128K", "", macintosh128K.active)]
+            commands += [item("AI control", "aiControl", "", aiControlEnabled), item("AI Connection...", "aiConnection")]
+            if !aiParkedDocuments.isEmpty { commands.append(item("Next Document", "nextAIDocument")) }
+            if aiBatch != nil { commands.append(item("Stop AI Drawing", "stopAI")) }
             if pending128KOperation != nil { commands.append(item("Cancel Operation", "cancel128K")) }
             workspace.menus.append(ClassicMenu(title: "Mods", items: commands))
         }
@@ -166,6 +187,13 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 }
             }
         }
+        if aiBatch != nil {
+            for menu in workspace.menus.indices {
+                for item in workspace.menus[menu].items.indices {
+                    workspace.menus[menu].items[item].enabled = ["stopAI", "aiControl"].contains(workspace.menus[menu].items[item].command)
+                }
+            }
+        }
         // Native menus also expose keyboard commands and accessibility to macOS.
         let bar = NSMenu()
         for (index, classic) in workspace.menus.enumerated() {
@@ -188,6 +216,9 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if let command = sender.representedObject as? String { perform(command, modifiers: flags.contains(.shift) ? .shift : []) }
     }
     func perform(_ command: String, modifiers: PaintModifiers = []) {
+        if command == "stopAI" { cancelAIDrawing(); return }
+        if command == "aiControl", modsEnabled { aiControlEnabled.toggle(); return }
+        guard aiBatch == nil else { return }
         guard !workspace.pageOverview else { return }
         if command == "cancel128K" { cancel128KOperation(); return }
         guard pending128KOperation == nil else { return }
@@ -198,6 +229,9 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private func performImmediately(_ command: String, modifiers: PaintModifiers) {
         do {
             switch command {
+            case "nextAIDocument":
+                if modsEnabled, let next = aiParkedDocuments.first { switchAIDocument(to: next.id) }
+            case "aiConnection": if modsEnabled { showAIConnection() }
             case "macintosh128K": if modsEnabled { show128KPanel() }
             case "new":
                 if shouldDiscard() {
@@ -333,9 +367,9 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         try writeDocument(to: url)
         return true
     }
-    func writeDocument(to url: URL) throws {
+    func writeDocument(to url: URL, overwrite: Bool = true) throws {
         let data = MacPaintFile.encode(model.displayBitmap, patterns: model.patterns)
-        try data.write(to: url, options: .atomic)
+        try data.write(to: url, options: overwrite ? .atomic : .withoutOverwriting)
         documentURL = url; model.markSaved(); workspace.documentTitle = url.deletingPathExtension().lastPathComponent
         flushRecovery()
         try? FileManager.default.setAttributes([.hfsTypeCode: 0x504E5447, .hfsCreatorCode: 0x4D504E54], ofItemAtPath: url.path)
@@ -349,26 +383,46 @@ final class AppController: NSObject, NSApplicationDelegate, NSWindowDelegate {
         model.revert(to: document)
     }
     private func closeCurrentDocument() {
+        if let next = aiParkedDocuments.first {
+            let closingRecovery = recovery
+            // The confirmed current drawing is closed, rather than parked again.
+            workspace.documentOpen = false
+            switchAIDocument(to: next.id)
+            do { try closingRecovery?.close() } catch { showRecoveryError(error) }
+            return
+        }
         let patterns = model.patterns
         workspace.documentOpen = false; model.newDocument(); model.patterns = patterns; model.markSaved(); documentURL = nil
+        aiDocumentID = UUID().uuidString
         workspace.helpID = nil; workspace.pageOverview = false
         flushRecovery()
     }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
+        cancelAIDrawing()
         guard !workspace.pageOverview else { return false }
         cancel128KOperation()
         guard shouldDiscard() else { return false }
-        closeCurrentDocument(); return true
+        closeCurrentDocument(); return !workspace.documentOpen
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        cancelAIDrawing()
         guard !workspace.pageOverview else { return .terminateCancel }
         cancel128KOperation()
-        guard shouldDiscard() else { return .terminateCancel }
+        let originalID = aiDocumentID
+        let documentIDs = (workspace.documentOpen ? [aiDocumentID] : []) + aiParkedDocuments.map(\.id)
+        for id in documentIDs {
+            switchAIDocument(to: id)
+            guard shouldDiscard() else { switchAIDocument(to: originalID); return .terminateCancel }
+        }
         recoveryWork?.cancel(); recoveryGeneration += 1
-        do { try recovery?.close() }
+        do {
+            try recovery?.close()
+            for document in aiParkedDocuments { try document.recovery?.close() }
+        }
         catch { showRecoveryError(error); return .terminateCancel }
         return .terminateNow
     }
+    func applicationWillTerminate(_ notification: Notification) { aiListener?.stop() }
     func applicationWillResignActive(_ notification: Notification) { flushRecovery() }
     func scheduleRecovery() {
         guard recovery != nil else { return }

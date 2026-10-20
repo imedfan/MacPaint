@@ -103,6 +103,7 @@ final class PaintModel {
         var axis: StrokeAxis?
     }
     private var gesture: Gesture?
+    var hasActiveGesture: Bool { gesture != nil || !polygonPoints.isEmpty || textOrigin != nil }
     var pattern: Pattern { patterns[patternIndex] }
     var visibleRect: PixelRect { PixelRect(x: origin.x, y: origin.y, width: 416, height: 240) }
     var activeRect: PixelRect {
