@@ -81,6 +81,84 @@ Modifiers follow the original: **Shift** constrains lines and shapes, **Option**
 - Original dialogs, alerts and help screens (*Introduction*, *Short Cuts*) rendered from the 1984 resources
 - Printing through macOS: Print Draft, Print Final and Print Catalog
 
+## 🧪 Mod
+
+**MacPaint Native Mod** is an optional, experimental build that adds a few modern extras on top of the faithful port. The mod code lives **only in the [`mod`](https://github.com/imedfan/MacPaint/tree/mod) branch** and is never merged into `main` — `main` stays the pure port.
+
+### Get it
+
+- **Prebuilt:** download [MacPaint-Native-Mod-0.1-b-arm64.dmg](https://github.com/imedfan/MacPaint/releases/download/v0.1.0/MacPaint-Native-Mod-0.1-b-arm64.dmg) from release [v0.1.0](https://github.com/imedfan/MacPaint/releases/tag/v0.1.0) (Apple Silicon).
+- **From source:** build the `mod` branch with the same steps as in [Build & run](#️-build--run):
+
+```bash
+git clone -b mod https://github.com/imedfan/MacPaint.git   # or: git checkout mod
+cd MacPaint/MacPaintNative
+xcodebuild -project MacPaintNative.xcodeproj -target MacPaintNative -configuration Release build
+open build/Release/MacPaintNative.app
+```
+
+### Enable it
+
+Mods are **off by default** and the app behaves exactly like the original. To turn them on:
+
+1. Open **About MacPaint** and check **Enable mods** (under *Native ARM64 adaptation*).
+2. A new **Mods** menu appears, last after **Style**: *Macintosh 128K…*, *AI control*, *AI Connection…* (plus *Next Document*, *Stop AI Drawing* and *Cancel Operation* when relevant).
+
+The setting is stored per app (not in the drawing or the MacPaint file format). Unchecking **Enable mods** hides the menu, stops AI drawing and closes the MCP connection.
+
+### Original mode — Macintosh 128K
+
+The idea: the port runs instantly on Apple Silicon, but MacPaint was designed around a 1984 machine with 128 KB of RAM and a floppy drive. **Mods → Macintosh 128K…** brings back an *approximation* of those limits so you can feel how the program originally behaved. It is not a 68000 or System emulator and is not calibrated to real hardware.
+
+What it changes when *Enable Macintosh 128K mode* is checked:
+
+- **Virtual memory budget** — a simulated heap (128 KB minus screen, stack, two working buffers and system/program reserve). Operations that would not fit are refused with *“Macintosh 128K: Not enough memory”*; the panel shows free heap bytes. Large fills of a whole connected area can be refused.
+- **Operation and floppy delays** (on by default) — open/save ≈ 0.9 s, scrolling/page ≈ 0.3 s, paste, paint bucket, Fill, Trace Edges, Rotate, Flip ≈ 0.4 s, with a *Cancel Operation* command.
+- **Classic mouse acceleration (approximate)** — optional doubling of fast mouse movement, applied on top of input already processed by macOS.
+- Reference spec shown in the panel: *512 × 342 screen · 576 × 720 page · 1-bit pixels*.
+
+### MCP — let AI agents draw
+
+The mod includes a [Model Context Protocol](https://modelcontextprotocol.io) server, so a local AI agent (Codex, Cursor, Claude Code, …) can look at the page and draw on it in real MacPaint. No API key is needed inside MacPaint — the model runs in your client.
+
+- **Transport:** STDIO. The client launches the bundled helper `MacPaint.app/Contents/MacOS/MacPaintMCP` (a link to the main executable; `MacPaintNative --mcp` works too). It talks to the running app over a local Unix socket (`/private/tmp/macpaint-mcp-<uid>/control.sock`; override with `--socket <path>`).
+- **Turn it on:** Enable mods → **Mods → AI control**. **Mods → AI Connection…** should say `Ready for local MCP clients.`
+- **Tools (10):** `get_canvas` (page as PNG + state), `draw_batch` (1–128 actions — stroke, line, polygon, rectangle, oval, fill, text — in 576 × 720 page pixels, black/white/gray, one Undo step), `undo`, `new_document`, `open_document`, `save_document`, `save_as`, `export_png`, `list_documents`, `switch_document` (up to 16 open documents).
+- While a batch draws, MacPaint shows progress and a **Stop** button (also Escape or **Mods → Stop AI Drawing**); **Edit → Undo** reverts the whole batch. Existing files are never overwritten unless `"overwrite": true` is passed.
+
+Replace the path below with where your app lives (e.g. `/Applications/MacPaint.app`, or `MacPaintNative/build/Release/MacPaintNative.app` for a source build).
+
+**Codex** — `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.macpaint]
+command = "/Applications/MacPaint.app/Contents/MacOS/MacPaintMCP"
+tool_timeout_sec = 45
+```
+
+or `codex mcp add macpaint -- /Applications/MacPaint.app/Contents/MacOS/MacPaintMCP`
+
+**Cursor** — `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+
+```json
+{
+  "mcpServers": {
+    "macpaint": {
+      "type": "stdio",
+      "command": "/Applications/MacPaint.app/Contents/MacOS/MacPaintMCP"
+    }
+  }
+}
+```
+
+**Claude Code:**
+
+```bash
+claude mcp add --transport stdio --scope user macpaint -- /Applications/MacPaint.app/Contents/MacOS/MacPaintMCP
+```
+
+Then ask, for example: *“Use the macpaint MCP. Call get_canvas, then draw a house with a chimney, two windows and a tree on the right in one draw_batch.”* Full guide (in Russian): [`MacPaintNative/AI-MCP-setup.md`](https://github.com/imedfan/MacPaint/blob/mod/MacPaintNative/AI-MCP-setup.md) on the `mod` branch.
+
 ## 🛠️ Build & run
 
 **Requirements:** macOS 15 or later, Apple Silicon (arm64), Xcode with Swift 5.
