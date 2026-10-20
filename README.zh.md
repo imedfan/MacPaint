@@ -81,6 +81,84 @@ MacPaint Native **不是模拟器**，而是一个全新的原生 macOS 应用�
 - 来自 1984 年资源的原版对话框、警告框和帮助画面（*Introduction*、*Short Cuts*）
 - 通过 macOS 打印：Print Draft、Print Final 和 Print Catalog
 
+## 🧪 Mod
+
+**MacPaint Native Mod** 是一个可选的实验性版本，在忠实移植的基础上增加了一些现代功能。Mod 代码**只存在于 [`mod`](https://github.com/imedfan/MacPaint/tree/mod) 分支**，永远不会合并到 `main`——`main` 始终是纯粹的移植版。
+
+### 获取
+
+- **预编译版本：** 从发布版 [v0.1.0](https://github.com/imedfan/MacPaint/releases/tag/v0.1.0) 下载 [MacPaint-Native-Mod-0.1-b-arm64.dmg](https://github.com/imedfan/MacPaint/releases/download/v0.1.0/MacPaint-Native-Mod-0.1-b-arm64.dmg)（Apple Silicon）。
+- **从源码构建：** 按照[构建与运行](#️-构建与运行)中的相同步骤构建 `mod` 分支：
+
+```bash
+git clone -b mod https://github.com/imedfan/MacPaint.git   # or: git checkout mod
+cd MacPaint/MacPaintNative
+xcodebuild -project MacPaintNative.xcodeproj -target MacPaintNative -configuration Release build
+open build/Release/MacPaintNative.app
+```
+
+### 启用
+
+Mod **默认关闭**，应用的行为与原版完全一致。要启用它们：
+
+1. 打开 **About MacPaint**，勾选 **Enable mods**（位于 *Native ARM64 adaptation* 下）。
+2. 会出现一个新的 **Mods** 菜单，位于 **Style** 之后的最后一个：*Macintosh 128K…*、*AI control*、*AI Connection…*（在相关时还有 *Next Document*、*Stop AI Drawing* 和 *Cancel Operation*）。
+
+该设置按应用保存（不保存在图画中，也不写入 MacPaint 文件格式）。取消勾选 **Enable mods** 会隐藏菜单、停止 AI 绘图并关闭 MCP 连接。
+
+### 原版模式——Macintosh 128K
+
+想法是：移植版在 Apple Silicon 上瞬间运行，但 MacPaint 是为一台拥有 128 KB 内存和软驱的 1984 年机器设计的。**Mods → Macintosh 128K…** 重现了这些限制的*近似效果*，让你感受程序最初的表现。它不是 68000 或 System 模拟器，也没有按真实硬件校准。
+
+勾选 *Enable Macintosh 128K mode* 后的变化：
+
+- **虚拟内存预算**——模拟的堆（128 KB 减去屏幕、栈、两个工作缓冲区以及系统/程序保留区）。放不下的操作会被拒绝并提示 *“Macintosh 128K: Not enough memory”*；面板显示堆的空闲字节数。对整个连通区域的大面积填充可能会被拒绝。
+- **操作与软驱延迟**（默认开启）——打开/保存 ≈ 0.9 秒，滚动/翻页 ≈ 0.3 秒，粘贴、油漆桶、Fill、Trace Edges、Rotate、Flip ≈ 0.4 秒，并提供 *Cancel Operation* 命令。
+- **经典鼠标加速（近似）**——可选地将快速鼠标移动加倍，作用于 macOS 已处理过的输入之上。
+- 面板中显示的参考规格：*512 × 342 screen · 576 × 720 page · 1-bit pixels*。
+
+### MCP——让 AI 智能体来画
+
+Mod 内置一个 [Model Context Protocol](https://modelcontextprotocol.io) 服务器，因此本地 AI 智能体（Codex、Cursor、Claude Code……）可以查看页面并在真正的 MacPaint 中作画。MacPaint 内部不需要 API 密钥——模型在你的客户端中运行。
+
+- **传输方式：** STDIO。客户端启动内置的辅助程序 `MacPaint.app/Contents/MacOS/MacPaintMCP`（指向主可执行文件的链接；`MacPaintNative --mcp` 同样可用）。它通过本地 Unix 套接字（`/private/tmp/macpaint-mcp-<uid>/control.sock`；可用 `--socket <path>` 覆盖）与正在运行的应用通信。
+- **开启：** Enable mods → **Mods → AI control**。**Mods → AI Connection…** 应显示 `Ready for local MCP clients.`
+- **工具（10 个）：** `get_canvas`（页面 PNG + 状态）、`draw_batch`（1–128 个动作——stroke、line、polygon、rectangle、oval、fill、text——以 576 × 720 页面像素为单位，黑/白/灰，一个 Undo 步骤）、`undo`、`new_document`、`open_document`、`save_document`、`save_as`、`export_png`、`list_documents`、`switch_document`（最多 16 个打开的文档）。
+- 批次绘制时，MacPaint 会显示进度和 **Stop** 按钮（也可按 Escape 或 **Mods → Stop AI Drawing**）；**Edit → Undo** 会撤销整个批次。除非传入 `"overwrite": true`，否则绝不会覆盖已有文件。
+
+将下面的路径替换为你的应用所在位置（例如 `/Applications/MacPaint.app`，或源码构建的 `MacPaintNative/build/Release/MacPaintNative.app`）。
+
+**Codex** — `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.macpaint]
+command = "/Applications/MacPaint.app/Contents/MacOS/MacPaintMCP"
+tool_timeout_sec = 45
+```
+
+或 `codex mcp add macpaint -- /Applications/MacPaint.app/Contents/MacOS/MacPaintMCP`
+
+**Cursor** — `~/.cursor/mcp.json` （全局）或 `.cursor/mcp.json` （项目）：
+
+```json
+{
+  "mcpServers": {
+    "macpaint": {
+      "type": "stdio",
+      "command": "/Applications/MacPaint.app/Contents/MacOS/MacPaintMCP"
+    }
+  }
+}
+```
+
+**Claude Code:**
+
+```bash
+claude mcp add --transport stdio --scope user macpaint -- /Applications/MacPaint.app/Contents/MacOS/MacPaintMCP
+```
+
+然后提出请求，例如：*“Use the macpaint MCP. Call get_canvas, then draw a house with a chimney, two windows and a tree on the right in one draw_batch.”* 完整指南（俄语）：`mod` 分支上的 [`MacPaintNative/AI-MCP-setup.md`](https://github.com/imedfan/MacPaint/blob/mod/MacPaintNative/AI-MCP-setup.md)。
+
 ## 🛠️ 构建与运行
 
 **要求：** macOS 15 或更高版本、Apple Silicon（arm64）、带 Swift 5 的 Xcode。

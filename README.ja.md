@@ -81,6 +81,84 @@ MacPaint Native は**エミュレーターではありません**。コンピュ
 - 1984 年のリソースから描画されるオリジナルのダイアログ、アラート、ヘルプ画面（*Introduction*、*Short Cuts*）
 - macOS 経由の印刷：Print Draft、Print Final、Print Catalog
 
+## 🧪 Mod
+
+**MacPaint Native Mod** は、忠実な移植版にいくつかの現代的な機能を追加した、オプションの実験的ビルドです。Mod のコードは **[`mod`](https://github.com/imedfan/MacPaint/tree/mod) ブランチにのみ** 存在し、`main` にマージされることはありません——`main` は純粋な移植版のままです。
+
+### 入手方法
+
+- **ビルド済み：** リリース [v0.1.0](https://github.com/imedfan/MacPaint/releases/tag/v0.1.0) から [MacPaint-Native-Mod-0.1-b-arm64.dmg](https://github.com/imedfan/MacPaint/releases/download/v0.1.0/MacPaint-Native-Mod-0.1-b-arm64.dmg) をダウンロードしてください（Apple Silicon）。
+- **ソースから：** [ビルドと実行](#️-ビルドと実行) と同じ手順で `mod` ブランチをビルドします：
+
+```bash
+git clone -b mod https://github.com/imedfan/MacPaint.git   # or: git checkout mod
+cd MacPaint/MacPaintNative
+xcodebuild -project MacPaintNative.xcodeproj -target MacPaintNative -configuration Release build
+open build/Release/MacPaintNative.app
+```
+
+### 有効化
+
+Mod は**デフォルトでオフ**で、アプリはオリジナルとまったく同じように動作します。有効にするには：
+
+1. **About MacPaint** を開き、**Enable mods**（*Native ARM64 adaptation* の下）にチェックを入れます。
+2. 新しい **Mods** メニューが **Style** の後ろ、一番最後に現れます：*Macintosh 128K…*、*AI control*、*AI Connection…*（状況に応じて *Next Document*、*Stop AI Drawing*、*Cancel Operation* も）。
+
+この設定はアプリ単位で保存されます（描画や MacPaint ファイル形式には含まれません）。**Enable mods** のチェックを外すと、メニューが非表示になり、AI による描画が停止し、MCP 接続が閉じられます。
+
+### オリジナルモード——Macintosh 128K
+
+狙い：移植版は Apple Silicon 上で一瞬で動きますが、MacPaint は 128 KB の RAM とフロッピードライブを備えた 1984 年のマシンを前提に設計されていました。**Mods → Macintosh 128K…** はそれらの制約の*近似*を再現し、プログラムが本来どのように振る舞っていたかを体感できるようにします。68000 や System のエミュレータではなく、実機に合わせて調整されたものでもありません。
+
+*Enable Macintosh 128K mode* にチェックを入れると変わること：
+
+- **仮想メモリ予算**——シミュレートされたヒープ（128 KB から画面、スタック、2 つの作業バッファ、システム/プログラムの予約分を差し引いたもの）。収まらない操作は *“Macintosh 128K: Not enough memory”* で拒否されます。パネルにはヒープの空きバイト数が表示されます。連結領域全体への大きな塗りつぶしは拒否される場合があります。
+- **操作とフロッピーの遅延**（デフォルトでオン）——開く/保存 ≈ 0.9 秒、スクロール/ページ ≈ 0.3 秒、ペースト、ペイントバケツ、Fill、Trace Edges、Rotate、Flip ≈ 0.4 秒。*Cancel Operation* コマンド付き。
+- **クラシックなマウス加速（近似）**——macOS がすでに処理した入力の上に、速いマウス移動を 2 倍にするオプション。
+- パネルに表示される参考仕様：*512 × 342 screen · 576 × 720 page · 1-bit pixels*。
+
+### MCP——AI エージェントに描かせる
+
+Mod には [Model Context Protocol](https://modelcontextprotocol.io) サーバーが含まれており、ローカルの AI エージェント（Codex、Cursor、Claude Code など）がページを見て、本物の MacPaint 上に描画できます。MacPaint 内に API キーは不要です——モデルはあなたのクライアントで動作します。
+
+- **トランスポート：** STDIO。クライアントは同梱のヘルパー `MacPaint.app/Contents/MacOS/MacPaintMCP`（メイン実行ファイルへのリンク。`MacPaintNative --mcp` でも可）を起動します。ヘルパーはローカル Unix ソケット（`/private/tmp/macpaint-mcp-<uid>/control.sock`。`--socket <path>` で変更可能）経由で実行中のアプリと通信します。
+- **オンにする：** Enable mods → **Mods → AI control**。**Mods → AI Connection…** に `Ready for local MCP clients.` と表示されるはずです。
+- **ツール（10 個）：** `get_canvas`（ページの PNG + 状態）、`draw_batch`（1〜128 個のアクション——stroke、line、polygon、rectangle、oval、fill、text——576 × 720 のページピクセル単位、黒/白/グレー、Undo 1 回分）、`undo`、`new_document`、`open_document`、`save_document`、`save_as`、`export_png`、`list_documents`、`switch_document`（最大 16 個の開いているドキュメント）。
+- バッチの描画中、MacPaint は進行状況と **Stop** ボタンを表示します（Escape または **Mods → Stop AI Drawing** でも可）。**Edit → Undo** でバッチ全体が元に戻ります。`"overwrite": true` を渡さない限り、既存のファイルが上書きされることはありません。
+
+以下のパスを、アプリの置き場所に置き換えてください（例：`/Applications/MacPaint.app`、ソースビルドなら `MacPaintNative/build/Release/MacPaintNative.app`）。
+
+**Codex** — `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.macpaint]
+command = "/Applications/MacPaint.app/Contents/MacOS/MacPaintMCP"
+tool_timeout_sec = 45
+```
+
+または `codex mcp add macpaint -- /Applications/MacPaint.app/Contents/MacOS/MacPaintMCP`
+
+**Cursor** — `~/.cursor/mcp.json` （グローバル）または `.cursor/mcp.json` （プロジェクト）：
+
+```json
+{
+  "mcpServers": {
+    "macpaint": {
+      "type": "stdio",
+      "command": "/Applications/MacPaint.app/Contents/MacOS/MacPaintMCP"
+    }
+  }
+}
+```
+
+**Claude Code:**
+
+```bash
+claude mcp add --transport stdio --scope user macpaint -- /Applications/MacPaint.app/Contents/MacOS/MacPaintMCP
+```
+
+あとは、例えば次のように依頼します：*“Use the macpaint MCP. Call get_canvas, then draw a house with a chimney, two windows and a tree on the right in one draw_batch.”* 完全なガイド（ロシア語）：`mod` ブランチの [`MacPaintNative/AI-MCP-setup.md`](https://github.com/imedfan/MacPaint/blob/mod/MacPaintNative/AI-MCP-setup.md)。
+
 ## 🛠️ ビルドと実行
 
 **必要環境：** macOS 15 以降、Apple Silicon（arm64）、Swift 5 対応の Xcode。
